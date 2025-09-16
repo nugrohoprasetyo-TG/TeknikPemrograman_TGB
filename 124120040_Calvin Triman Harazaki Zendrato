@@ -9,3 +9,27 @@ jumlah = int(input("Masukkan jumlah barang: "))
 diskon = int(input("Masukkan diskon (%): "))
 
 print("Total belanja =", hitung_total(harga, jumlah, diskon))
+
+
+//Challenge 2 
+//Mengubah celsius ke farenheit
+def c_to_f(celcius):
+    return (celcius * 9/5) + 32
+
+# Input dari pengguna
+c = float(input("Masukkan suhu dalam Celcius: "))
+
+# Hitung dan tampilkan hasilnya
+f = c_to_f(c)
+print(f"{c}°C = {f}°F")
+
+//Mengubah farenheit ke celsius
+def f_to_c(fahrenheit):
+    return (fahrenheit - 32) * 5/9
+
+# Input dari pengguna
+f = float(input("Masukkan suhu dalam Fahrenheit: "))
+
+# Hitung dan tampilkan hasilnya
+c = f_to_c(f)
+print(f"{f}°F = {c:.2f}°C")
