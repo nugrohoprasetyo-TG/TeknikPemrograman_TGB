@@ -1,0 +1,22 @@
+def hitung_total(harga, jumlah, diskon=0):
+    total = harga * jumlah
+    total -= total * (diskon / 100)
+    return total
+
+def input_angka(prompt):
+    while True:
+        try:
+            value = int(input(prompt))
+            if value < 0:
+                print("Masukkan angka positif!")
+                continue
+            return value
+        except ValueError:
+            print("Input harus berupa angka!")
+
+harga = input_angka("Masukkan harga barang: ")
+jumlah = input_angka("Masukkan jumlah barang: ")
+diskon = input_angka("Masukkan diskon (%): ")
+
+total_belanja = hitung_total(harga, jumlah, diskon)
+print(f"Total belanja = Rp {total_belanja:.2f}")
