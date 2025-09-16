@@ -22,3 +22,15 @@ diskon = int(input("Masukkan diskon (%): "))
 
 total_belanja = hitung_total(harga, jumlah, diskon)
 print("Total belanja = {}".format(int(total_belanja)))
+
+#Challenge Library Konversi Suhu
+# konversi.py
+
+def c_to_f(c):
+    """Konversi Celcius ke Fahrenheit"""
+    return (c * 9/5) + 32
+
+def f_to_c(f):
+    """Konversi Fahrenheit ke Celcius"""
+    return (f - 32) * 5/9
+
