@@ -1,0 +1,24 @@
+# Challenge 1 - Diskon Belanja
+def hitung_total(harga, jumlah, diskon=0):
+    """
+    Menghitung total harga belanja setelah diskon (jika ada).
+    
+    :param harga: harga barang
+    :param jumlah: jumlah barang
+    :param diskon: persen diskon (default 0)
+    :return: total harga setelah diskon
+    """
+    total = harga * jumlah
+    if diskon > 0:
+        potongan = total * (diskon / 100)
+        total -= potongan
+    return total
+
+
+# Program utama
+harga = int(input("Masukkan harga barang: "))
+jumlah = int(input("Masukkan jumlah barang: "))
+diskon = int(input("Masukkan diskon (%): "))
+
+total_belanja = hitung_total(harga, jumlah, diskon)
+print("Total belanja = {}".format(int(total_belanja)))
