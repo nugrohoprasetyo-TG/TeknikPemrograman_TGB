@@ -1,0 +1,13 @@
+def hitung_total(harga, jumlah, diskon=0):
+    total = harga * jumlah
+    if diskon > 0:
+        total -= total * (diskon / 100)
+    return int(total)
+
+# Contoh penggunaan sesuai sample
+harga = int(input("Masukkan harga barang: "))
+jumlah = int(input("Masukkan jumlah barang: "))
+diskon = int(input("Masukkan diskon (%): "))
+
+total_belanja = hitung_total(harga, jumlah, diskon)
+print("Total belanja =", total_belanja)
