@@ -1,0 +1,19 @@
+def hitung_total(harga, jumlah, diskon=0):
+    """Menghitung total harga setelah diskon"""
+    subtotal = harga * jumlah
+    return subtotal - (subtotal * (diskon / 100)) if diskon > 0 else subtotal
+
+# Program utama
+if __name__ == "__main__":
+    try:
+        harga = float(input("Masukkan harga barang: "))
+        jumlah = int(input("Masukkan jumlah barang: "))
+        diskon_input = input("Masukkan diskon (%): ")
+
+        diskon = float(diskon_input) if diskon_input.strip() else 0
+
+        total = hitung_total(harga, jumlah, diskon)
+        print(f"Total belanja = {int(total)}")
+
+    except ValueError:
+        print("Error: Input tidak valid!")
