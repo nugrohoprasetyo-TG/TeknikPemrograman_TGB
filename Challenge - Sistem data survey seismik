@@ -1,0 +1,34 @@
+survey = {
+    "Survey_A": [
+    {"trace_id": 1, "receiver": "R1", "offset": 100, "QC_flag": "OK"},
+    {"trace_id": 2, "receiver": "R2", "offset": 150, "QC_flag": "OK"},
+    {"trace_id": 3, "receiver": "R3", "offset": 200, "QC_flag": "BAD"}
+    ],
+
+    "Survey_B": [
+    {"trace_id": 4, "receiver": "R1", "offset": 120, "QC_flag": "OK"},
+    {"trace_id": 5, "receiver": "R4", "offset": 250, "QC_flag": "OK"},
+    {"trace_id": 6, "receiver": "R2", "offset": 300, "QC_flag": "BAD"}
+    ],
+
+    "Survey_C": [
+    {"trace_id": 7, "receiver": "R5", "offset": 180, "QC_flag": "OK"}
+    ]
+}
+
+###########################################################################
+# Mencari trace dengan QC_flag "BAD" di semua survey
+###########################################################################
+for nama_survey, daftar_trace in survey.items():
+    print("Survey:", nama_survey)
+    for trace in daftar_trace:
+        if trace["QC_flag"] == "BAD":
+            print("Trace ID dengan QC_flag BAD:", trace["trace_id"])
+    print(" ")
+
+###########################################################################
+# Menghitung total trace di semua survey
+###########################################################################
+total_trace = sum(len(daftar_trace) for daftar_trace in survey.values())
+print("Total trace di seua survey:", total_trace)
+print(" ")
