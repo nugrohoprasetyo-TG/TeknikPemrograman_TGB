@@ -32,3 +32,34 @@ for nama_survey, daftar_trace in survey.items():
 total_trace = sum(len(daftar_trace) for daftar_trace in survey.values())
 print("Total trace di seua survey:", total_trace)
 print(" ")
+
+###########################################################################
+# Mencari survey yang memiliki jumlah trace paling banyak.
+###########################################################################
+survey_terbanyak = max(survey,key=lambda s: len(s[1]))
+print("Survey fengan trace terbanyak:", survey_terbanyak)
+print(" ")
+
+###########################################################################
+# Membuat set berisi semua receiver unik yang ada di data durvey.
+###########################################################################
+receivers_unik = set()
+for daftar_trace in survey.values():
+    for trace in daftar_trace:
+        receivers_unik.add(trace["receiver"])
+        print("Receiver unik:", receivers_unik)
+print(" ")
+
+###########################################################################
+# Membuat dictionary yang menetapkan jumlah trace di setiap receiver muncul.
+###########################################################################
+receiver_count = {}
+for daftar_trace in survey.values():
+    for trace in daftar_trace:
+        receiver = trace["receiver"]
+    if receiver in receiver_count:
+        receiver_count[receiver] += 1
+    else:
+        receiver_count[receiver] = 1
+        print("Jumlah trace per receiver:", receiver_count)
+print (" ")
