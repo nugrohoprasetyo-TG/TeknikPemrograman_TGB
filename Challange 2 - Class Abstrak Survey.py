@@ -20,3 +20,21 @@ class SeismicSurvey(Survey):
         return f"Metode Seismik, fs={self.frekuensi_sampling} Hz"
     def processing(self):
         return "Filtering data seismik"
+
+class GravitySurvey(Survey):
+    def __init__(self, lokasi, sensivitas):
+        super().__init__(lokasi)
+        self.sensivitas = sensivitas
+    def metode(self):
+        return f"Metode gravitasi, sensivitas={self.sensivitas} mGal"
+    def processing(self):
+        return "Upward continuation pada gravitasi"
+
+class MagnetikSurvey(Survey):
+    def __init__(self, lokasi, resolusi):
+        super().__init__(lokasi)
+        self.resolusi = resolusi
+    def metode(self):
+        return f"Metode magnetik, resolusi={self.resolusi} nT"
+    def processing(self):
+        return "Anomaly maping pada data magnetik"
