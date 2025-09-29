@@ -1,0 +1,29 @@
+class Survey:
+    def processing(self):
+        print("Processing data for generic survey...")
+
+class SeismicSurvey(Survey):
+    def processing(self):
+        print("Seismic Survey: Melakukan filtering dan seismic stacking...")
+
+class GravitySurvey(Survey):
+    def processing(self):
+        print("Gravity Survey: Melakukan upward continuation dan koreksi Bouguer...")
+
+class MagnetikSurvey(Survey):
+    def processing(self):
+        print("Magnetik Survey: Membuat peta anomali dan reduksi ke kutub...")
+
+survey_list = [
+    SeismicSurvey(),
+    GravitySurvey(),
+    MagnetikSurvey()
+]
+
+for survey in survey_list:
+    survey.processing()
+OUTPUT:
+Seismic Survey: Melakukan filtering dan seismic stacking...
+Gravity Survey: Melakukan upward continuation dan koreksi Bouguer...
+Magnetik Survey: Membuat peta anomali dan reduksi ke kutub...
+
