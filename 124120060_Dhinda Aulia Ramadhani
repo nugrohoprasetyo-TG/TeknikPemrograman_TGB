@@ -1,0 +1,43 @@
+#%%
+from abc import ABC, abstractmethod
+
+# Kelas abstrak
+class Survey(ABC):
+    def __init__(self, lokasi):
+        self.lokasi = lokasi
+
+    @abstractmethod
+    def processing(self):
+        pass
+
+
+# Turunan pertama
+class SeismicSurvey(Survey):
+    def processing(self):
+        print(f"Seismic Survey di {self.lokasi}: Melakukan filtering dan stacking data seismik.")
+
+
+# Turunan kedua
+class GravitySurvey(Survey):
+    def processing(self):
+        print(f"Gravity Survey di {self.lokasi}: Melakukan upward continuation dan bouguer anomaly correction.")
+
+
+# Turunan ketiga
+class MagnetikSurvey(Survey):
+    def processing(self):
+        print(f"Magnetik Survey di {self.lokasi}: Melakukan anomaly mapping dan reduksi ke kutub.")
+
+
+# Membuat list objek
+surveys = [
+    SeismicSurvey("Sumatra"),
+    GravitySurvey("Papua"),
+    MagnetikSurvey("Kalimantan")
+]
+
+# Iterasi dan panggil processing
+for s in surveys:
+    s.processing()
+
+# %%
