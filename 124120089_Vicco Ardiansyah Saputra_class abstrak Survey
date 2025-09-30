@@ -1,0 +1,30 @@
+from abc import ABC, abstractmethod
+
+# 1. Buat class abstrak Survey
+class Survey(ABC):
+    @abstractmethod
+    def processing(self):
+        pass
+
+# 2. Turunkan SeismicSurvey, GravitySurvey, MagnetikSurvey
+class SeismicSurvey(Survey):
+    def processing(self):
+        print("Processing Seismic Survey: applying seismic filtering...")
+
+class GravitySurvey(Survey):
+    def processing(self):
+        print("Processing Gravity Survey: performing upward continuation...")
+
+class MagnetikSurvey(Survey):
+    def processing(self):
+        print("Processing Magnetic Survey: generating anomaly mapping...")
+
+# 4. Masukkan objek ke dalam list dan iterasi
+surveys = [
+    SeismicSurvey(),
+    GravitySurvey(),
+    MagnetikSurvey()
+]
+
+for survey in surveys:
+    survey.processing()
