@@ -1,0 +1,12 @@
+import pandas as pd
+
+data = pd.read_csv('data_twt.txt')
+
+twt_min = data['twt'].min()
+twt_max = data['twt'].max()
+
+data['twt_norm'] = (data['twt'] - twt_min) / (twt_max - twt_min)
+
+data.to_csv('twt_normalized.txt', index=False, sep='\t')
+
+print("Proses selesai! File hasil tersimpan sebagai 'twt_normalized.txt'")
