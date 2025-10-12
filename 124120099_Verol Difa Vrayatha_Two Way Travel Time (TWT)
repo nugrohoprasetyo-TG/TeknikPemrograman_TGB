@@ -1,0 +1,28 @@
+# main.py
+file = open("data_seismik.txt", "r")
+header = file.readline()
+data = []
+
+for line in file:
+    parts = line.strip().split(",")
+    shot = int(parts[0])
+    receiver = int(parts[1])
+    twt = float(parts[2])
+    data.append([shot, receiver, twt])
+
+file.close()
+
+twt_min = min([row[2] for row in data])
+twt_max = 600
+
+for row in data:
+    twt_norm = (row[2] - twt_min) / (twt_max - twt_min)
+    row.append(round(twt_norm, 3))
+
+output = open("data_seismik_normalized.csv", "w")
+output.write("shot,receiver,twt,twt_norm\n")
+for row in data:
+    output.write(f"{row[0]},{row[1]},{row[2]},{row[3]}\n")
+output.close()
+
+print("Data berhasil disimpan ke 'data_seismik_normalized.csv'")
