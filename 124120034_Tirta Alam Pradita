@@ -1,0 +1,38 @@
+//Challenge 1 - Diskon Belanja
+def hitung_total(harga, jumlah, diskon=0):
+    total = harga * jumlah
+    total -= total * (diskon / 100)
+    return total
+
+
+//Challenge 2 - Library Konversi Suhu
+# Input dari pengguna
+harga = int(input("Masukkan harga barang: "))
+jumlah = int(input("Masukkan jumlah barang: "))
+diskon = int(input("Masukkan diskon (%): "))
+
+# Output total belanja
+print("Total belanja =", hitung_total(harga, jumlah, diskon))
+
+
+def c_to_f(c):
+    """Mengonversi suhu dari Celcius ke Fahrenheit."""
+    return (c * 9/5) + 32
+
+def f_to_c(f):
+    """Mengonversi suhu dari Fahrenheit ke Celcius."""
+    return (f - 32) * 5/9
+    import konversi
+
+def main():
+    try:
+        c = float(input("Masukkan suhu dalam Celcius: "))
+        print("Suhu dalam Fahrenheit =", konversi.c_to_f(c))
+
+        f = float(input("Masukkan suhu dalam Fahrenheit: "))
+        print("Suhu dalam Celcius =", konversi.f_to_c(f))
+    except ValueError:
+        print("Input tidak valid. Harap masukkan angka.")
+
+if __name__ == "__main__":
+    main()
