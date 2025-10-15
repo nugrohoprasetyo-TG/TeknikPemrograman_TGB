@@ -1,0 +1,49 @@
+import pandas as pd
+
+# === 1. Load data dari file TXT ===
+try:
+    # Membaca file (contoh nama file: data_seismik.txt)
+    df = pd.read_csv("data_seismik.txt")
+    print("Data berhasil dibaca!\n")
+    print(df)
+except FileNotFoundError:
+    print("❌ File tidak ditemukan! Pastikan nama dan lokasi file benar.")
+    exit()
+except pd.errors.EmptyDataError:
+    print("❌ File kosong, tidak ada data untuk dibaca.")
+    exit()
+except Exception as e:
+    print(f"❌ Terjadi error saat membaca file: {e}")
+    exit()
+
+# === 2. Normalisasi kolom TWT ===
+try:
+    twt_min = df['twt'].min()
+    twt_max = df['twt'].max()
+    
+    # Pastikan nilai maksimum dan minimum tidak sama untuk menghindari pembagian nol
+    if twt_max == twt_min:
+        raise ValueError("Semua nilai TWT sama — normalisasi tidak dapat dilakukan.")
+    
+    # Rumus normalisasi
+    df['twt_normalized'] = (df['twt'] - twt_min) / (600 - twt_min)
+
+    print("\nData setelah normalisasi:\n")
+    print(df)
+
+except KeyError:
+    print("❌ Kolom 'twt' tidak ditemukan dalam data!")
+    exit()
+except ZeroDivisionError:
+    print("❌ Terjadi pembagian dengan nol saat normalisasi!")
+    exit()
+except Exception as e:
+    print(f"❌ Error saat normalisasi: {e}")
+    exit()
+
+# === 3. Simpan hasil ke file ASCII (comma-separated) ===
+try:
+    df.to_csv("data_seismik_normalized.csv", index=False)
+    print("\n✅ Data berhasil disimpan ke 'data_seismik_normalized.csv'")
+except Exception as e:
+    print(f"❌ Error saat menyimpan file: {e}")
