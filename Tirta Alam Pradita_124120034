@@ -1,0 +1,37 @@
+
+# Kelas induk
+class Sensor:
+    def __init__(self, id_sensor, lokasi, jenis):
+        self.id_sensor = id_sensor
+        self.lokasi = lokasi
+        self.jenis = jenis
+
+    def info(self):
+        print(f"ID Sensor   : {self.id_sensor}")
+        print(f"Lokasi      : {self.lokasi}")
+        print(f"Jenis       : {self.jenis}")
+
+
+# Kelas turunan
+class SensorSeismik(Sensor):
+    def __init__(self, id_sensor, lokasi, jenis, frekuensi_sampling):
+        super().__init__(id_sensor, lokasi, jenis)
+        self.frekuensi_sampling = frekuensi_sampling
+
+    def jumlah_sampel(self, durasi_detik):
+        """
+        Menghitung jumlah data amplitudo berdasarkan durasi pengamatan (detik)
+        dan frekuensi sampling (Hz).
+        """
+        return self.frekuensi_sampling * durasi_detik
+
+    def info(self):
+        # Memanggil info() dari kelas induk
+        super().info()
+        print(f"Frekuensi Sampling : {self.frekuensi_sampling} Hz")
+
+
+# Contoh penggunaan
+sensor1 = SensorSeismik("SS-001", "Sumatera", "Seismik", 100)
+sensor1.info()
+print(f"Jumlah sampel dalam 60 detik: {sensor1.jumlah_sampel(60)} data")
