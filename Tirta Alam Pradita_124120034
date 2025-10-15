@@ -1,0 +1,102 @@
+# ==============================================================
+# Challenge: Analisis Data Mikrogravitasi
+# Integrasi Pandas, NumPy, dan SciPy untuk Eksplorasi Bawah Permukaan
+# ==============================================================
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+
+# --------------------------------------------------------------
+# 1. Eksplorasi & Pembersihan Data
+# --------------------------------------------------------------
+
+# Membaca data CSV
+data = pd.read_csv("survey_gravitasi.csv")
+
+print("=== Informasi Data ===")
+print(data.info())
+print("\n=== Statistik Deskriptif ===")
+print(data.describe())
+
+# Cek missing values
+print("\n=== Cek Missing Values ===")
+print(data.isna().sum())
+
+# Tangani missing values pada kolom Anomali_Gravitasi_mGal
+# (Diisi dengan rata-rata)
+if data['Anomali_Gravitasi_mGal'].isna().sum() > 0:
+    mean_value = data['Anomali_Gravitasi_mGal'].mean()
+    data['Anomali_Gravitasi_mGal'].fillna(mean_value, inplace=True)
+    print(f"\nMissing values diisi dengan rata-rata: {mean_value:.2f}")
+
+# Visualisasi sebaran titik data
+plt.figure(figsize=(7,5))
+plt.scatter(data['X'], data['Y'], c=data['Anomali_Gravitasi_mGal'], cmap='viridis', s=60)
+plt.colorbar(label='Anomali Gravitasi (mGal)')
+plt.title('Sebaran Titik Pengukuran')
+plt.xlabel('Koordinat Timur (m)')
+plt.ylabel('Koordinat Utara (m)')
+plt.show()
+
+# --------------------------------------------------------------
+# 2. Persiapan Grid untuk Interpolasi
+# --------------------------------------------------------------
+
+x_min, x_max = data['X'].min(), data['X'].max()
+y_min, y_max = data['Y'].min(), data['Y'].max()
+
+# Buat grid reguler
+grid_x, grid_y = np.meshgrid(
+    np.linspace(x_min, x_max, 200),
+    np.linspace(y_min, y_max, 200)
+)
+
+# --------------------------------------------------------------
+# 3. Interpolasi Data ke Grid (Linear & Cubic)
+# --------------------------------------------------------------
+
+points = np.column_stack((data['X'], data['Y']))
+values = data['Anomali_Gravitasi_mGal']
+
+# Interpolasi linear
+grid_linear = griddata(points, values, (grid_x, grid_y), method='linear')
+
+# Interpolasi cubic
+grid_cubic = griddata(points, values, (grid_x, grid_y), method='cubic')
+
+# --------------------------------------------------------------
+# 4. Visualisasi Peta Kontur
+# --------------------------------------------------------------
+
+fig, axes = plt.subplots(1, 2, figsize=(14,6))
+
+# Linear
+c1 = axes[0].contourf(grid_x, grid_y, grid_linear, cmap='seismic', levels=20)
+axes[0].set_title('Interpolasi Linear')
+axes[0].set_xlabel('Koordinat Timur (m)')
+axes[0].set_ylabel('Koordinat Utara (m)')
+fig.colorbar(c1, ax=axes[0], label='Anomali Gravitasi (mGal)')
+
+# Cubic
+c2 = axes[1].contourf(grid_x, grid_y, grid_cubic, cmap='seismic', levels=20)
+axes[1].set_title('Interpolasi Cubic')
+axes[1].set_xlabel('Koordinat Timur (m)')
+axes[1].set_ylabel('Koordinat Utara (m)')
+fig.colorbar(c2, ax=axes[1], label='Anomali Gravitasi (mGal)')
+
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------------------------
+# 5. Analisis Cepat (Opsional)
+# --------------------------------------------------------------
+max_anom = data.loc[data['Anomali_Gravitasi_mGal'].idxmax()]
+min_anom = data.loc[data['Anomali_Gravitasi_mGal'].idxmin()]
+
+print("\n=== Analisis Cepat ===")
+print(f"Anomali Positif Tertinggi : {max_anom['Anomali_Gravitasi_mGal']:.2f} mGal di (X={max_anom['X']}, Y={max_anom['Y']})")
+print(f"Anomali Negatif Terendah  : {min_anom['Anomali_Gravitasi_mGal']:.2f} mGal di (X={min_anom['X']}, Y={min_anom['Y']})")
+
+print("\nRekomendasi: Titik anomali positif tertinggi berpotensi mengindikasikan batuan padat (contoh: bijih besi).")
