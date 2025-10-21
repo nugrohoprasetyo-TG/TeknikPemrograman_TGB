@@ -1,0 +1,26 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = pd.DataFrame({
+    'X (m)': [0, 0, 50, 50, 100, 100],
+    'Y (m)': [0, 50, 0, 50, 0, 50],
+    'Total_Field (nT)': [43210, 43280, 43100, 43420, 43050, 43500]
+})
+
+pivot = data.pivot_table(index='Y (m)', columns='X (m)', values='Total_Field (nT)')
+X, Y = np.meshgrid(pivot.columns, pivot.index)
+Z = pivot.values
+plt.figure(figsize=(8, 6))
+min_Z = Z.min()
+max_Z = Z.max()
+levels = np.arange(np.floor(min_Z/50)*50, np.ceil(max_Z/50)*50 + 50, 50)
+contf = plt.contourf(X, Y, Z, cmap='coolwarm', levels=levels)
+cont_line = plt.contour(X, Y, Z, levels=levels, colors='black', linewidths=0.7)
+plt.clabel(cont_line, inline=True, fontsize=9, fmt='%1.0f')
+plt.colorbar(contf, label='Medan Total (nT)') 
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+plt.title('Peta Medan Total Magnetik') 
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.show()
