@@ -1,0 +1,16 @@
+class Seismogram:
+    def __init__(self, station, amplitudo, waktu):
+        self.station = station
+        self.amplitudo = amplitudo
+        self.waktu = waktu
+
+    def info(self):
+        return f"Station: {self.station}, Sampel: {len(self.amplitudo)}"
+
+    def max_amp(self):
+        return max(self.amplitudo)
+
+data = Seismogram("ST01", [0.1, 0.5, 1.2, 0.8], [0, 1, 2, 3])
+
+print(data.info())
+print("Amplitudo Maks:", data.max_amp())
