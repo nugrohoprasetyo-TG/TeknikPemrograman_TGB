@@ -1,0 +1,22 @@
+# Membuat kelas Mahasiswa
+class Mahasiswa:
+    def __init__(self, nama, nim, prodi):
+        self.nama = nama
+        self.nim = nim
+        self.prodi = prodi
+
+    def tampilkan_data(self):
+        print(f"Nama  : {self.nama}")
+        print(f"NIM   : {self.nim}")
+        print(f"Prodi : {self.prodi}")
+        print("-" * 30)
+
+# Membuat beberapa objek dari kelas Mahasiswa
+mhs1 = Mahasiswa("Rafi Azzaky", "123456789", "Geofisika")
+mhs2 = Mahasiswa("Sinta Maharani", "987654321", "Teknik Geologi")
+mhs3 = Mahasiswa("Bima Pratama", "112233445", "Fisika")
+
+# Menampilkan data setiap mahasiswa
+mhs1.tampilkan_data()
+mhs2.tampilkan_data()
+mhs3.tampilkan_data()
