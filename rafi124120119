@@ -1,0 +1,33 @@
+# 1. Tampilkan semua trace_id dengan QC_flag = BAD
+bad_traces = df[df["QC_flag"] == "BAD"]["trace_id"]
+
+# 2. Hitung total trace
+total_trace = len(df)
+
+# 3. Cari survey dengan jumlah trace terbanyak
+survey_counts = df["survey_id"].value_counts()
+survey_terbanyak = survey_counts.idxmax()
+jumlah_trace_terbanyak = survey_counts.max()
+
+# 4. Set receiver unik
+receiver_unik = set(df["receiver"])
+
+# 5. Dictionary {receiver: jumlah_trace}
+receiver_count = df["receiver"].value_counts().to_dict()
+
+# ================================
+# OUTPUT
+# ================================
+print("TRACE dengan QC = BAD:")
+print(bad_traces.to_list())
+
+print("\nTotal trace:", total_trace)
+
+print("\nSurvey dengan trace terbanyak:", survey_terbanyak)
+print("Jumlah trace:", jumlah_trace_terbanyak)
+
+print("\nReceiver unik:")
+print(receiver_unik)
+
+print("\nDictionary receiver → jumlah trace:")
+print(receiver_count)
