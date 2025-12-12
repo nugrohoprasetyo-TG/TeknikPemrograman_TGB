@@ -1,0 +1,88 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def simulasi_tabungan(saldo_awal, setoran, bunga, bulan):
+    r = bunga / 12 / 100
+    saldo = [saldo_awal]
+    for _ in range(bulan):
+        saldo.append(saldo[-1] * (1 + r) + setoran)
+    return pd.DataFrame({"Bulan": range(len(saldo)), "Saldo": saldo})
+
+def sisa_hutang(pinjaman, bunga, bulan):
+    r = bunga / 12 / 100
+    return pinjaman * (1 + r) ** bulan
+
+def simulasi_pembayaran_hutang(pinjaman, bunga, lama):
+    r = bunga / 12 / 100
+    cicilan = pinjaman * (r * (1 + r) ** lama) / ((1 + r) ** lama - 1)
+    sisa = pinjaman
+    data = []
+
+    for bulan in range(1, lama + 1):
+        bunga_bulan = sisa * r
+        pokok = cicilan - bunga_bulan
+        sisa -= pokok
+        sisa = max(sisa, 0)
+        data.append([bulan, cicilan, pokok, bunga_bulan, sisa])
+
+    df = pd.DataFrame(data, 
+        columns=["Bulan", "Cicilan", "Pokok", "Bunga", "Sisa Pinjaman"])
+    return cicilan, df
+
+st.title("Kalkulator Finansial")
+menu = st.sidebar.selectbox("Menu", ["Nabung", "Hutang", "Bayar Hutang"])
+
+if menu == "Nabung":
+    st.header("Simulasi Tabungan")
+
+    saldo_awal = st.number_input("Saldo awal", value=1000000)
+    setoran = st.number_input("Setoran bulanan", value=200000)
+    bunga = st.number_input("Bunga tahunan (%)", value=5.0)
+    bulan = st.number_input("Lama menabung (bulan)", value=60)
+
+    if st.button("Hitung"):
+        df = simulasi_tabungan(saldo_awal, setoran, bunga, bulan)
+
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.plot(df["Bulan"], df["Saldo"])
+        ax.set_xlabel("Bulan")
+        ax.set_ylabel("Saldo")
+        ax.grid(True)
+        st.pyplot(fig)
+
+        st.dataframe(df)
+        st.write(f"Saldo akhir: Rp {df['Saldo'].iloc[-1]:,.0f}")
+
+elif menu == "Hutang":
+    st.header("Hitung Sisa Hutang")
+
+    pinjaman = st.number_input("Jumlah pinjaman", value=5000000)
+    bunga = st.number_input("Bunga tahunan (%)", value=12.0)
+    bulan = st.number_input("Lama (bulan)", value=12)
+
+    if st.button("Hitung"):
+        total = sisa_hutang(pinjaman, bunga, bulan)
+        st.write(f"Sisa hutang setelah {bulan} bulan: Rp {total:,.0f}")
+
+elif menu == "Bayar Hutang":
+    st.header("Simulasi Cicilan")
+
+    pinjaman = st.number_input("Jumlah pinjaman", value=5000000)
+    bunga = st.number_input("Bunga tahunan (%)", value=12.0)
+    lama = st.number_input("Lama pinjaman (bulan)", value=36)
+
+    if st.button("Hitung"):
+        cicilan, df = simulasi_pembayaran_hutang(pinjaman, bunga, lama)
+
+        st.write(f"Cicilan per bulan: Rp {cicilan:,.0f}")
+
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.plot(df["Bulan"], df["Sisa Pinjaman"])
+        ax.set_xlabel("Bulan")
+        ax.set_ylabel("Sisa Pinjaman")
+        ax.grid(True)
+        st.pyplot(fig)
+
+        st.dataframe(df)
