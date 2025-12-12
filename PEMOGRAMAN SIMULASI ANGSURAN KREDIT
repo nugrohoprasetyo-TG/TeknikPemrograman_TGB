@@ -1,0 +1,97 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+st.title("Simulasi Angsuran Kredit")
+st.write("Selamat datang di aplikasi Streamlit!")
+
+# Judul aplikasi
+st.title("Simulasi Tabungan dan Cicilan Pinjaman")
+
+# Input dari pengguna
+st.header("Input Data")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Tabungan")
+    jumlah_tabungan_awal = st.number_input("Masukkan saldo awal tabungan (Rp):", min_value=0.0, value=1000000.0)
+    bunga_tabungan_tahunan = st.number_input("Masukkan bunga tabungan per tahun (%):", min_value=0.0, value=5.0) / 100
+    periode_tabungan_tahun = st.number_input("Masukkan lama menabung (tahun):", min_value=1, value=5)
+
+with col2:
+    st.subheader("Pinjaman")
+    jumlah_pinjaman = st.number_input("Masukkan jumlah pinjaman (Rp):", min_value=0.0, value=10000000.0)
+    bunga_pinjaman_tahunan = st.number_input("Masukkan bunga pinjaman per tahun (%):", min_value=0.0, value=10.0) / 100
+    periode_pinjaman_tahun = st.number_input("Masukkan lama cicilan (tahun):", min_value=1, value=5)
+
+# Tombol untuk menjalankan simulasi
+if st.button("Jalankan Simulasi"):
+    
+    # ====== Simulasi Tabungan ======
+    saldo_tabungan = [jumlah_tabungan_awal]
+    for tahun in range(1, periode_tabungan_tahun + 1):
+        saldo_baru = saldo_tabungan[-1] * (1 + bunga_tabungan_tahunan)
+        saldo_tabungan.append(saldo_baru)
+
+    df_tabungan = pd.DataFrame({
+        "Tahun": list(range(0, periode_tabungan_tahun + 1)),
+        "Saldo Tabungan": saldo_tabungan
+    })
+
+    # ====== Simulasi Cicilan Pinjaman ======
+    def hitung_angsuran(bunga_tahunan, jumlah_pinjaman, tahun):
+        bunga_bulanan = bunga_tahunan / 12
+        n = tahun * 12
+        angsuran = jumlah_pinjaman * bunga_bulanan / (1 - (1 + bunga_bulanan) ** -n)
+        return angsuran
+
+    angsuran_bulanan = hitung_angsuran(bunga_pinjaman_tahunan, jumlah_pinjaman, periode_pinjaman_tahun)
+
+    sisa_utang = jumlah_pinjaman
+    saldo_utang = [sisa_utang]
+    for bulan in range(1, periode_pinjaman_tahun * 12 + 1):
+        bunga = sisa_utang * (bunga_pinjaman_tahunan / 12)
+        pokok = angsuran_bulanan - bunga
+        sisa_utang -= pokok
+        saldo_utang.append(max(sisa_utang, 0))
+
+    df_utang = pd.DataFrame({
+        "Bulan": list(range(0, periode_pinjaman_tahun * 12 + 1)),
+        "Sisa Utang": saldo_utang
+    })
+
+    # Tampilkan hasil
+    st.header("Hasil Simulasi")
+
+    st.subheader("Data Tabungan")
+    st.dataframe(df_tabungan)
+
+    st.subheader("Data Cicilan Pinjaman")
+    st.write(f"Angsuran bulanan: Rp {angsuran_bulanan:,.2f}")
+    st.dataframe(df_utang)
+
+    # Visualisasi
+    st.header("Visualisasi")
+
+    col3, col4 = st.columns(2)
+
+    with col3:
+        st.subheader("Simulasi Saldo Tabungan")
+        fig1, ax1 = plt.subplots(figsize=(8, 5))
+        ax1.plot(df_tabungan["Tahun"], df_tabungan["Saldo Tabungan"], label="Saldo Tabungan", marker="o")
+        ax1.set_title("Simulasi Saldo Tabungan")
+        ax1.set_xlabel("Tahun")
+        ax1.set_ylabel("Saldo (Rp)")
+        ax1.grid(True)
+        ax1.legend()
+        st.pyplot(fig1)
+
+    with col4:
+        st.subheader("Simulasi Cicilan Pinjaman")
+        fig2, ax2 = plt.subplots(figsize=(8, 5))
+        ax2.plot(df_utang["Bulan"], df_utang["Sisa Utang"], label="Sisa Utang", color="red", marker="o")
+        ax2.set_title("Simulasi Cicilan Pinjaman")
+        ax2.set_xlabel("Bulan")
+        ax2.set_ylabel("Sisa Utang (Rp)")
+        ax2.grid(True)
+        ax2.legend()
+        st.pyplot(fig2)
