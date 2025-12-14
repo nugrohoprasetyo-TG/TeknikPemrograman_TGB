@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+
+# =========================
+# 1. Data Sample
+# =========================
+data = pd.DataFrame({
+    'X (m)': [0, 0, 50, 50, 100, 100],
+    'Y (m)': [0, 50, 0, 50, 0, 50],
+    'Total_Field (nT)': [43210, 43280, 43100, 43420, 43050, 43500]
+})
+
+# =========================
+# 2. Interpolasi Grid Halus
+# =========================
+# Buat grid 100x100 untuk X dan Y
+xi = np.linspace(data['X (m)'].min(), data['X (m)'].max(), 100)
+yi = np.linspace(data['Y (m)'].min(), data['Y (m)'].max(), 100)
+X_grid, Y_grid = np.meshgrid(xi, yi)
+
+# Interpolasi nilai Total_Field ke grid
+Z_grid = griddata(
+    (data['X (m)'], data['Y (m)']),
+    data['Total_Field (nT)'],
+    (X_grid, Y_grid),
+    method='cubic'  # cubic untuk hasil lebih smooth
+)
+
+# =========================
+# 3. Plot Kontur
+# =========================
+plt.figure(figsize=(8,6))
+cont = plt.contourf(X_grid, Y_grid, Z_grid, cmap='coolwarm', levels=20)
+plt.colorbar(cont, label='Total Field (nT)')
+plt.scatter(data['X (m)'], data['Y (m)'], c='black', marker='o', label='Data Survey')  # titik data asli
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+plt.title('Peta Anomali Medan Magnetik')
+plt.legend()
+plt.show()
