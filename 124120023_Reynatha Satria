@@ -1,0 +1,24 @@
+Challenge Week -4 
+
+#Survey Data Seismik
+
+# Asumsi data bernama `data` (list of dict)
+# Contoh elemen: {"trace_id": 1, "survey": "A", "receiver": "R1", "QC_flag": "BAD"}
+
+# 1. Semua trace_id dengan QC_flag = BAD
+bad_traces = [d["trace_id"] for d in data if d["QC_flag"] == "BAD"]
+
+# 2. Jumlah total trace
+total_trace = len(data)
+
+# 3. Survey dengan jumlah trace paling banyak
+from collections import Counter
+survey_count = Counter(d["survey"] for d in data)
+survey_terbanyak = max(survey_count, key=survey_count.get)
+
+# 4. Set receiver unik
+receiver_unik = {d["receiver"] for d in data}
+
+# 5. Dictionary {"receiver": jumlah_trace}
+receiver_count = Counter(d["receiver"] for d in data)
+receiver_dict = dict(receiver_count)
