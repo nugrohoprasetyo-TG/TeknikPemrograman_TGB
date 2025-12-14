@@ -1,0 +1,57 @@
+# =========================
+# DATA SURVEY (WAJIB DULU)
+# =========================
+survey = {
+    "Survey_A": [
+        {"trace_id": 1, "receiver": "R1", "offset": 100, "QC_flag": "OK"},
+        {"trace_id": 2, "receiver": "R2", "offset": 150, "QC_flag": "OK"},
+        {"trace_id": 3, "receiver": "R3", "offset": 200, "QC_flag": "BAD"}
+    ],
+    "Survey_B": [
+        {"trace_id": 4, "receiver": "R1", "offset": 120, "QC_flag": "OK"},
+        {"trace_id": 5, "receiver": "R4", "offset": 250, "QC_flag": "OK"},
+        {"trace_id": 6, "receiver": "R2", "offset": 300, "QC_flag": "BAD"}
+    ],
+    "Survey_C": [
+        {"trace_id": 7, "receiver": "R5", "offset": 180, "QC_flag": "OK"}
+    ]
+}
+
+# =========================
+# TAHAP 1
+# =========================
+print("Trace dengan QC BAD:")
+for traces in survey.values():
+    for trace in traces:
+        if trace["QC_flag"] == "BAD":
+            print(trace["trace_id"])
+total_trace = 0
+for traces in survey.values():
+    total_trace += len(traces)
+
+print("\nTotal trace:", total_trace)
+survey_terbanyak = None
+jumlah_maks = 0
+
+for nama_survey, traces in survey.items():
+    if len(traces) > jumlah_maks:
+        jumlah_maks = len(traces)
+        survey_terbanyak = nama_survey
+
+print("\nSurvey dengan trace terbanyak:", survey_terbanyak)
+receiver_unik = set()
+
+for traces in survey.values():
+    for trace in traces:
+        receiver_unik.add(trace["receiver"])
+
+print("\nReceiver unik:", receiver_unik)
+receiver_count = {}
+
+for traces in survey.values():
+    for trace in traces:
+        receiver = trace["receiver"]
+        receiver_count[receiver] = receiver_count.get(receiver, 0) + 1
+
+print("\nJumlah trace per receiver:")
+print(receiver_count)
