@@ -1,0 +1,42 @@
+def hitung_total(harga, jumlah, diskon=0):
+    """
+    Fungsi untuk menghitung total harga belanja
+    harga  : harga satuan barang
+    jumlah : jumlah barang
+    diskon : potongan harga dalam persen (default = 0)
+    """
+    total_awal = harga * jumlah
+
+    if diskon > 0:
+        potongan = total_awal * (diskon / 100)
+    else:
+        potongan = 0
+
+    total_akhir = total_awal - potongan
+    return total_awal, potongan, total_akhir
+
+
+# ===== Program Utama =====
+print("=" * 40)
+print("PROGRAM PERHITUNGAN TOTAL BELANJA")
+print("=" * 40)
+
+# Input data dari pengguna
+harga = int(input("Masukkan harga barang        : "))
+jumlah = int(input("Masukkan jumlah barang       : "))
+diskon = int(input("Masukkan diskon (%)          : "))
+
+# Memanggil fungsi
+total_awal, potongan, total_belanja = hitung_total(harga, jumlah, diskon)
+
+# Menampilkan hasil perhitungan
+print("\n--- RINCIAN BELANJA ---")
+print("Harga satuan     :", harga)
+print("Jumlah barang    :", jumlah)
+print("Total awal       :", total_awal)
+print("Diskon (%)       :", diskon)
+print("Potongan harga   :", potongan)
+print("Total belanja    :", total_belanja)
+
+print("=" * 40)
+print("Terima kasih telah berbelanja!")
