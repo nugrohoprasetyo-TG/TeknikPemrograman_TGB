@@ -1,0 +1,13 @@
+def hitung_total(harga, jumlah, diskon=0):
+    total = harga * jumlah
+    
+    if diskon > 0:
+        potongan = total * (diskon / 100)
+        total -= potongan
+    
+    return total
+
+
+# Contoh penggunaan
+print(hitung_total(10000, 3))          # tanpa diskon
+print(hitung_total(10000, 3, 10))      # dengan diskon 10%
