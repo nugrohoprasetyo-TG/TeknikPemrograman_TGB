@@ -1,0 +1,7 @@
+import konversi
+
+hasil1 = konversi.c_to_f(30)
+hasil2 = konversi.f_to_c(86)
+
+print("30°C =", hasil1, "°F")
+print("86°F =", hasil2, "°C")
