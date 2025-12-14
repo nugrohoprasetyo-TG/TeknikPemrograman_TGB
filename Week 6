@@ -1,0 +1,57 @@
+import csv
+
+input_file = "data_twt.txt"
+output_file = "data_twt_normalized.csv"
+
+data = []
+
+try:
+    with open(input_file, "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append({
+                "shot": int(row["shot"]),
+                "receiver": int(row["receiver"]),
+                "twt": float(row["twt"])
+            })
+except Exception:
+    exit()
+
+try:
+    twt_min = min(d["twt"] for d in data)
+    denominator = 600 - twt_min
+
+    if denominator == 0:
+        raise ZeroDivisionError
+
+    for d in data:
+        d["twt_norm"] = (d["twt"] - twt_min) / denominator
+except Exception:
+    exit()
+
+try:
+    with open(output_file, "w", newline="") as file:
+        fieldnames = ["shot", "receiver", "twt", "twt_norm"]
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+except Exception:
+    exit()
+
+shot,receiver,twt
+0,100,200
+0,200,350
+0,300,480
+0,400,600
+
+
+shot,receiver,twt,twt_norm
+0,100,200,0.0
+0,200,350,0.375
+0,300,480,0.7
+0,400,600,1.0
+
+
+# Seismic TWT Normalization
+python twt_normalization.py
+(TWT - TWT_min) / (600 - TWT_min)
