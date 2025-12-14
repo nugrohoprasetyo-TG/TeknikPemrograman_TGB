@@ -1,0 +1,97 @@
+# ==========================================================
+# ANALISIS DATA MIKROGRAVITASI
+# Integrasi Pandas, NumPy, SciPy, dan Matplotlib
+# ==========================================================
+
+# 1. Import library yang dibutuhkan
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+
+
+# 2. Membaca data survei gravitasi
+# Data berupa titik pengukuran tidak beraturan
+data = pd.read_csv("survey_gravitasi.csv")
+
+print("=== DATA SURVEI GRAVITASI ===")
+print(data.head())
+
+
+# 3. Memeriksa struktur dan statistik data
+print("\n=== INFORMASI DATA ===")
+print(data.info())
+
+print("\n=== STATISTIK DATA ===")
+print(data.describe())
+
+
+# 4. Mengambil kolom sesuai deskripsi challenge
+# X  : Koordinat Timur (m)
+# Y  : Koordinat Utara (m)
+# Elevasi : Ketinggian titik ukur (m)
+# Anomali_Gravitasi_mGal : Bouguer Anomaly (mGal)
+
+x = data["X"].values
+y = data["Y"].values
+anomali = data["Anomali_Gravitasi_mGal"].values
+
+
+# 5. Membuat grid interpolasi
+# Karena titik pengukuran tidak membentuk grid sempurna
+xi = np.linspace(x.min(), x.max(), 100)
+yi = np.linspace(y.min(), y.max(), 100)
+xi, yi = np.meshgrid(xi, yi)
+
+
+# 6. Interpolasi anomali gravitasi
+# Metode cubic untuk visualisasi yang lebih halus
+zi = griddata(
+    (x, y),
+    anomali,
+    (xi, yi),
+    method="cubic"
+)
+
+
+# 7. Visualisasi peta anomali gravitasi Bouguer
+plt.figure(figsize=(9, 7))
+
+kontur = plt.contourf(
+    xi, yi, zi,
+    levels=20,
+    cmap="seismic"
+)
+
+plt.colorbar(kontur, label="Anomali Gravitasi Bouguer (mGal)")
+plt.scatter(x, y, c="black", s=10, label="Titik Pengukuran")
+
+plt.xlabel("Koordinat Timur (m)")
+plt.ylabel("Koordinat Utara (m)")
+plt.title("Peta Anomali Gravitasi Bouguer\n(Survei Mikrogravitasi ITERA)")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+
+# 8. Identifikasi anomali signifikan
+anomali_maks = np.nanmax(zi)
+anomali_min = np.nanmin(zi)
+
+print("\n=== HASIL ANALISIS ANOMALI ===")
+print("Anomali gravitasi maksimum :", round(anomali_maks, 2), "mGal")
+print("Anomali gravitasi minimum  :", round(anomali_min, 2), "mGal")
+
+
+# 9. Interpretasi geofisika sederhana (sesuai challenge)
+print("\n=== INTERPRETASI ===")
+
+if anomali_maks > 0:
+    print("- Ditemukan anomali positif yang mengindikasikan material berdensitas tinggi")
+    print("  (contoh: batuan padat atau endapan bijih).")
+
+if anomali_min < 0:
+    print("- Ditemukan anomali negatif yang mengindikasikan material berdensitas rendah")
+    print("  (contoh: rongga bawah tanah atau endapan garam).")
+
+print("\nAnalisis ini membantu mengidentifikasi zona prospek bawah permukaan.")
