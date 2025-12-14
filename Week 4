@@ -1,0 +1,98 @@
+# ==========================
+# DATA AWAL SURVEY SEISMIK
+# ==========================
+survey = {
+    "Survey_A": [
+        {"trace_id": 1, "receiver": "R1", "offset": 100, "QC_flag": "OK"},
+        {"trace_id": 2, "receiver": "R2", "offset": 150, "QC_flag": "OK"},
+        {"trace_id": 3, "receiver": "R3", "offset": 200, "QC_flag": "BAD"}
+    ],
+    "Survey_B": [
+        {"trace_id": 4, "receiver": "R1", "offset": 120, "QC_flag": "OK"},
+        {"trace_id": 5, "receiver": "R4", "offset": 250, "QC_flag": "OK"},
+        {"trace_id": 6, "receiver": "R2", "offset": 300, "QC_flag": "BAD"}
+    ],
+    "Survey_C": [
+        {"trace_id": 7, "receiver": "R5", "offset": 180, "QC_flag": "OK"}
+    ]
+}
+
+print("=" * 50)
+print("SISTEM DATA SURVEY SEISMIK")
+print("=" * 50)
+
+
+# ==================================================
+# 1. Menampilkan semua trace_id dengan QC_flag = BAD
+# ==================================================
+bad_traces = []
+
+for survey_name, traces in survey.items():
+    for trace in traces:
+        if trace["QC_flag"] == "BAD":
+            bad_traces.append(trace["trace_id"])
+
+print("\n1. Trace dengan QC_flag = BAD:")
+print(bad_traces)
+
+
+# =======================================
+# 2. Menghitung total trace seluruh survey
+# =======================================
+total_trace = 0
+
+for traces in survey.values():
+    total_trace += len(traces)
+
+print("\n2. Total trace dari seluruh survey:")
+print(total_trace)
+
+
+# ==================================================
+# 3. Mencari survey dengan jumlah trace paling banyak
+# ==================================================
+survey_terbanyak = ""
+max_trace = 0
+
+for survey_name, traces in survey.items():
+    if len(traces) > max_trace:
+        max_trace = len(traces)
+        survey_terbanyak = survey_name
+
+print("\n3. Survey dengan jumlah trace terbanyak:")
+print(survey_terbanyak, "dengan", max_trace, "trace")
+
+
+# =====================================
+# 4. Membuat set receiver unik
+# =====================================
+receiver_unik = set()
+
+for traces in survey.values():
+    for trace in traces:
+        receiver_unik.add(trace["receiver"])
+
+print("\n4. Receiver unik yang ada di data:")
+print(receiver_unik)
+
+
+# ==================================================
+# 5. Dictionary jumlah kemunculan setiap receiver
+# ==================================================
+receiver_count = {}
+
+for traces in survey.values():
+    for trace in traces:
+        receiver = trace["receiver"]
+        if receiver in receiver_count:
+            receiver_count[receiver] += 1
+        else:
+            receiver_count[receiver] = 1
+
+print("\n5. Jumlah trace per receiver:")
+print(receiver_count)
+
+
+print("\n" + "=" * 50)
+print("PROSES ANALISIS DATA SEISMIK SELESAI")
+print("=" * 50)
