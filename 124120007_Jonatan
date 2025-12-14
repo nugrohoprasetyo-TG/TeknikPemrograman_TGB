@@ -1,0 +1,22 @@
+class Sensor:
+    def __init__(self, id_sensor, lokasi, jenis):
+        self.id_sensor = id_sensor
+        self.lokasi = lokasi
+        self.jenis = jenis
+
+    def info(self):
+        return f"Sensor {self.id_sensor} | Lokasi: {self.lokasi} | Jenis: {self.jenis}"
+
+
+class SensorSeismik(Sensor):
+    def __init__(self, id_sensor, lokasi, frekuensi_sampling, amplitudo):
+        super().__init__(id_sensor, lokasi, "Seismik")
+        self.frekuensi_sampling = frekuensi_sampling
+        self.amplitudo = amplitudo
+
+    def jumlah_sampel(self):
+        return len(self.amplitudo)
+sensor1 = SensorSeismik("SS01", "Bandung", 100, [0.1, 0.3, 0.5, 0.2])
+
+print(sensor1.info())
+print("Jumlah sampel:", sensor1.jumlah_sampel())
