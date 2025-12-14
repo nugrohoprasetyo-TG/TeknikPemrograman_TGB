@@ -1,0 +1,134 @@
+# ============================================
+# Challenge Analisis Data Mikrogravitasi
+# Integrasi Pandas, NumPy, SciPy, Matplotlib
+# ============================================
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+
+# --------------------------------------------
+# 1. Load & Eksplorasi Data
+# --------------------------------------------
+
+print("Membaca data...")
+df = pd.read_csv("survey_gravitasi.csv")
+
+print("\nInfo Data:")
+print(df.info())
+
+print("\nStatistik Deskriptif:")
+print(df.describe())
+
+# --------------------------------------------
+# 2. Pembersihan Data
+# --------------------------------------------
+
+print("\nCek missing values:")
+print(df.isnull().sum())
+
+# Hapus baris jika anomali gravitasi kosong
+df = df.dropna(subset=['Anomali_Gravitasi_mGal'])
+
+print("\nJumlah data setelah pembersihan:", len(df))
+
+# --------------------------------------------
+# 3. Visualisasi Sebaran Titik
+# --------------------------------------------
+
+plt.figure(figsize=(6, 5))
+plt.scatter(df['X'], df['Y'], s=10, color='black')
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+plt.title('Sebaran Titik Survei Gravitasi')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------
+# 4. Persiapan Grid (NumPy)
+# --------------------------------------------
+
+xmin, xmax = df['X'].min(), df['X'].max()
+ymin, ymax = df['Y'].min(), df['Y'].max()
+
+# Resolusi grid (semakin besar semakin halus)
+grid_res = 100
+
+xi = np.linspace(xmin, xmax, grid_res)
+yi = np.linspace(ymin, ymax, grid_res)
+Xi, Yi = np.meshgrid(xi, yi)
+
+# --------------------------------------------
+# 5. Interpolasi Data (SciPy)
+# --------------------------------------------
+
+points = df[['X', 'Y']].values
+values = df['Anomali_Gravitasi_mGal'].values
+
+print("\nMelakukan interpolasi...")
+
+Zi_linear = griddata(points, values, (Xi, Yi), method='linear')
+Zi_cubic  = griddata(points, values, (Xi, Yi), method='cubic')
+
+# --------------------------------------------
+# 6. Visualisasi Peta Kontur
+# --------------------------------------------
+
+plt.figure(figsize=(14, 6))
+
+# ---- Linear ----
+plt.subplot(1, 2, 1)
+cont1 = plt.contourf(Xi, Yi, Zi_linear, 20, cmap='seismic')
+plt.colorbar(cont1, label='Anomali Gravitasi (mGal)')
+plt.title('Interpolasi Linear')
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+
+# ---- Cubic ----
+plt.subplot(1, 2, 2)
+cont2 = plt.contourf(Xi, Yi, Zi_cubic, 20, cmap='seismic')
+plt.colorbar(cont2, label='Anomali Gravitasi (mGal)')
+plt.title('Interpolasi Cubic')
+plt.xlabel('X (m)')
+plt.ylabel('Y (m)')
+
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------
+# 7. Identifikasi Anomali Terkuat
+# --------------------------------------------
+
+# Anomali maksimum & minimum (Linear)
+max_idx = np.nanargmax(Zi_linear)
+min_idx = np.nanargmin(Zi_linear)
+
+x_max = Xi.flatten()[max_idx]
+y_max = Yi.flatten()[max_idx]
+x_min = Xi.flatten()[min_idx]
+y_min = Yi.flatten()[min_idx]
+
+print("\n=== HASIL INTERPRETASI ===")
+print(f"Anomali POSITIF terkuat (Linear):")
+print(f"X = {x_max:.2f} m, Y = {y_max:.2f} m")
+
+print(f"\nAnomali NEGATIF terkuat (Linear):")
+print(f"X = {x_min:.2f} m, Y = {y_min:.2f} m")
+
+# --------------------------------------------
+# 8. Rekomendasi Titik Pengeboran
+# --------------------------------------------
+
+print("\n=== REKOMENDASI PENGEBORAN ===")
+print(f"Rekomendasi titik pengeboran:")
+print(f"X = {x_max:.2f} m")
+print(f"Y = {y_max:.2f} m")
+
+print("\nAlasan:")
+print("- Berada di pusat anomali gravitasi positif")
+print("- Konsisten secara spasial")
+print("- Metode linear lebih stabil untuk interpretasi geofisika")
+
+print("\nAnalisis selesai.")
