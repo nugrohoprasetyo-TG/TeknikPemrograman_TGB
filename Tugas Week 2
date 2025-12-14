@@ -1,0 +1,20 @@
+# PROGRAM MENGHITUNG RATA-RATA USIA KELUARGA
+#MENGINPUT JUMLAH ANGGOTA KELUARGA
+jumlah_anggota = int(input("Masukkan jumlah anggota keluarga:"))
+
+#LIST UNTUK MENYIMPAN USIA
+usia = []
+
+#MENGINPUT USIA SETIAP ANGGOTA KELUARGA
+for i in range(jumlah_anggota):
+    usia_anggota = int(input(f"Masukkan usia anggota keluarga ke-{1 + i}:"))
+    usia.append(usia_anggota)
+
+#MENGHITUNG RATA-RATA USIA
+total_usia = sum(usia)
+rata_rata_usia = sum(usia) / jumlah_anggota
+
+"MENAMPILKAN HASIL"
+print(f"\nJumlah anggota keluarga: {jumlah_anggota}")
+print(f"TOTAL USIA:{total_usia}")
+print(f"RATA-RATA USIA:{rata_rata_usia:.1f}")
