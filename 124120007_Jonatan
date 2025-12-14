@@ -1,0 +1,134 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+from io import BytesIO
+
+# ======================
+# KONFIGURASI HALAMAN
+# ======================
+st.set_page_config(
+    page_title="Peta Anomali Magnetik",
+    layout="wide"
+)
+
+# ======================
+# DATA DUMMY MAGNETIK
+# ======================
+nx, ny = 100, 100
+x = np.linspace(0, 10, nx)
+y = np.linspace(0, 10, ny)
+X, Y = np.meshgrid(x, y)
+
+# Anomali magnetik observasi
+mag_obs = (
+    50 * np.sin(X) * np.cos(Y)
+    + 10 * np.random.randn(ny, nx)
+)
+
+# Anomali magnetik regional (low frequency)
+mag_reg = 30 * np.sin(0.3 * X)
+
+# Anomali magnetik residual
+mag_res = mag_obs - mag_reg
+
+# ======================
+# SIDEBAR
+# ======================
+st.sidebar.title("🎛 Kontrol Visualisasi Magnetik")
+
+# Colormap
+cmap = st.sidebar.selectbox(
+    "Pilih Colormap",
+    ["seismic", "viridis", "plasma", "inferno", "coolwarm", "jet"]
+)
+
+# Mode scaling
+scale_mode = st.sidebar.radio(
+    "Mode Scaling",
+    ["Auto", "Manual"]
+)
+
+# Slider vmin & vmax
+vmin = vmax = None
+if scale_mode == "Manual":
+    global_min = float(min(mag_obs.min(), mag_reg.min(), mag_res.min()))
+    global_max = float(max(mag_obs.max(), mag_reg.max(), mag_res.max()))
+
+    vmin = st.sidebar.slider(
+        "Nilai vmin",
+        global_min,
+        global_max,
+        global_min
+    )
+    vmax = st.sidebar.slider(
+        "Nilai vmax",
+        global_min,
+        global_max,
+        global_max
+    )
+
+# Kontur
+show_contour = st.sidebar.checkbox("Tampilkan Kontur Magnetik", value=True)
+n_contour = st.sidebar.slider("Jumlah Kontur", 5, 30, 15)
+
+# ======================
+# FUNGSI PLOT
+# ======================
+def plot_map(ax, data, title):
+    if scale_mode == "Auto":
+        im = ax.imshow(
+            data,
+            cmap=cmap,
+            origin="lower"
+        )
+    else:
+        im = ax.imshow(
+            data,
+            cmap=cmap,
+            origin="lower",
+            vmin=vmin,
+            vmax=vmax
+        )
+
+    if show_contour:
+        cs = ax.contour(
+            data,
+            levels=n_contour,
+            colors="black",
+            linewidths=0.5
+        )
+        ax.clabel(cs, fontsize=7, inline=True)
+
+    ax.set_title(title)
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    return im
+
+# ======================
+# PLOT PETA MAGNETIK
+# ======================
+fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+
+im1 = plot_map(axes[0], mag_obs, "Anomali Magnetik Observasi")
+im2 = plot_map(axes[1], mag_reg, "Anomali Magnetik Regional")
+im3 = plot_map(axes[2], mag_res, "Anomali Magnetik Residual")
+
+cbar = fig.colorbar(im1, ax=axes.ravel().tolist(), shrink=0.85)
+cbar.set_label("Anomali Magnetik (nT)")
+
+st.pyplot(fig)
+
+# ======================
+# SIMPAN GAMBAR
+# ======================
+buf = BytesIO()
+fig.savefig(buf, format="png", dpi=300)
+buf.seek(0)
+
+st.sidebar.download_button(
+    label="💾 Simpan Plot",
+    data=buf,
+    file_name="peta_anomali_magnetik.png",
+    mime="image/png"
+)
+
