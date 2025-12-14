@@ -1,0 +1,122 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+from io import BytesIO
+
+# ======================
+# KONFIGURASI HALAMAN
+# ======================
+st.set_page_config(
+    page_title="Visualisasi Seismik",
+    layout="wide"
+)
+
+# ======================
+# DATA DUMMY SEISMIK
+# ======================
+nt = 500    # jumlah sampel waktu
+nx = 50     # jumlah trace
+
+time = np.linspace(0, 2, nt)
+
+seismic = (
+    np.sin(10 * time[:, None]) *
+    np.exp(-time[:, None]) *
+    np.random.randn(nt, nx)
+)
+
+# ======================
+# SIDEBAR
+# ======================
+st.sidebar.title("🎛 Kontrol Visualisasi Seismik")
+
+# Pilihan colormap
+cmap = st.sidebar.selectbox(
+    "Pilih Colormap",
+    ["gray", "seismic", "viridis", "plasma", "inferno", "coolwarm"]
+)
+
+# Mode scaling
+scale_mode = st.sidebar.radio(
+    "Mode Scaling",
+    ["Auto", "Manual"]
+)
+
+# Slider vmin & vmax (aktif jika Manual)
+vmin = vmax = None
+if scale_mode == "Manual":
+    vmin = st.sidebar.slider(
+        "Nilai vmin",
+        float(seismic.min()),
+        float(seismic.max()),
+        float(seismic.min())
+    )
+    vmax = st.sidebar.slider(
+        "Nilai vmax",
+        float(seismic.min()),
+        float(seismic.max()),
+        float(seismic.max())
+    )
+
+# Opsi membalik sumbu waktu
+flip_time = st.sidebar.checkbox("Balik sumbu waktu")
+
+# Opsi memilih rentang trace
+trace_start, trace_end = st.sidebar.slider(
+    "Pilih Rentang Trace",
+    min_value=0,
+    max_value=nx - 1,
+    value=(0, nx - 1)
+)
+
+# ======================
+# DATA HASIL SLICE TRACE
+# ======================
+seismic_slice = seismic[:, trace_start:trace_end + 1]
+
+# ======================
+# PLOT SEISMIK
+# ======================
+fig, ax = plt.subplots(figsize=(10, 6))
+
+if scale_mode == "Auto":
+    im = ax.imshow(
+        seismic_slice,
+        cmap=cmap,
+        aspect="auto",
+        extent=[trace_start, trace_end + 1, time[-1], time[0]]
+    )
+else:
+    im = ax.imshow(
+        seismic_slice,
+        cmap=cmap,
+        aspect="auto",
+        vmin=vmin,
+        vmax=vmax,
+        extent=[trace_start, trace_end + 1, time[-1], time[0]]
+    )
+
+if flip_time:
+    ax.invert_yaxis()
+
+ax.set_xlabel("Trace")
+ax.set_ylabel("Time (s)")
+ax.set_title("Visualisasi Penampang Seismik")
+
+plt.colorbar(im, ax=ax, label="Amplitude")
+
+st.pyplot(fig)
+
+# ======================
+# SIMPAN GAMBAR
+# ======================
+buf = BytesIO()
+fig.savefig(buf, format="png", dpi=300)
+buf.seek(0)
+
+st.sidebar.download_button(
+    label="💾 Simpan Plot",
+    data=buf,
+    file_name="seismic_plot.png",
+    mime="image/png"
+)
