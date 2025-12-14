@@ -1,0 +1,73 @@
+import os
+
+# =========================
+# Tentukan path file input & output
+# =========================
+base_dir = os.path.dirname(__file__)
+file_input = os.path.join(base_dir, "data_twt.txt")
+file_output = os.path.join(base_dir, "data_twt_normalized.csv")
+
+# =========================
+# Load data dari file
+# =========================
+data = []
+
+if not os.path.exists(file_input):
+    print(f"ERROR: File '{file_input}' tidak ditemukan!")
+    exit()
+
+with open(file_input, "r") as file:
+    lines = file.readlines()
+
+if len(lines) < 2:
+    print("ERROR: File kosong atau tidak ada data")
+    exit()
+
+header = lines[0]  # skip header
+
+for line in lines[1:]:
+    if not line.strip():
+        continue
+    try:
+        shot, receiver, twt = line.strip().split(",")
+        data.append({
+            "shot": int(shot),
+            "receiver": int(receiver),
+            "twt": float(twt)
+        })
+    except Exception as e:
+        print(f"ERROR parsing line: {line.strip()} -> {e}")
+        exit()
+
+# =========================
+# Normalisasi TWT
+# =========================
+twt_values = [d["twt"] for d in data]
+
+if not twt_values:
+    print("ERROR: Tidak ada data untuk normalisasi")
+    exit()
+
+try:
+    twt_min = min(twt_values)
+    denominator = 600 - twt_min
+    if denominator == 0:
+        raise ZeroDivisionError("Pembagi nol pada normalisasi")
+
+    for d in data:
+        d["twt_norm"] = (d["twt"] - twt_min) / denominator
+
+except Exception as e:
+    print("ERROR normalisasi:", e)
+    exit()
+
+# =========================
+# Simpan ke file CSV
+# =========================
+with open(file_output, "w") as f:
+    f.write("shot,receiver,twt,twt_norm\n")
+    for d in data:
+        f.write(f"{d['shot']},{d['receiver']},{d['twt']},{d['twt_norm']:.3f}\n")
+
+print("✅ Normalisasi selesai.")
+print("📄 File output:", file_output)
