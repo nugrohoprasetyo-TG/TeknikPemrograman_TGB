@@ -1,0 +1,25 @@
+#Verol Difa Vrayatha_124120099_RTGB
+
+#variabel
+username = "verol"
+password = "012345"
+
+#user menginputkan data
+percobaan = 0
+while percobaan < 3:
+    username_input = input("username: ")
+    password_input = input("password: ")
+
+  #jika informasi benar dapat login
+    if username_input == username and password == password_input:
+        print("login berhasil!")
+        break
+
+    #jika salah tidak dapat login
+    else:
+        print("username atau password salah")
+        percobaan += 1
+
+  #akun terkunci jika gagal 3
+    if percobaan == 3:
+        print("Akun terkunci karena 3x gagal login.")
