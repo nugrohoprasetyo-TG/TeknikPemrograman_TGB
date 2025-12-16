@@ -1,0 +1,15 @@
+# Program Menghitung Usia Rata-rata Keluarga
+
+jumlah_anggota = int(input("Masukkan jumlah anggota keluarga: "))
+
+total_usia = 0
+
+for i in range(1, jumlah_anggota + 1):
+    usia = int(input(f"Masukkan usia anggota ke-{i}: "))
+    total_usia += usia
+
+rata_rata = total_usia / jumlah_anggota
+
+print("\nJumlah anggota keluarga:", jumlah_anggota)
+print("Total usia:", total_usia)
+print("Rata-rata usia keluarga:", rata_rata

@@ -1,0 +1,77 @@
+# ===============================
+# Contoh Data Survey
+# ===============================
+survey = {
+    "Survey_A": [
+        {"trace_id": "T001", "receiver": "R1", "QC_flag": "GOOD"},
+        {"trace_id": "T002", "receiver": "R2", "QC_flag": "BAD"},
+        {"trace_id": "T003", "receiver": "R1", "QC_flag": "GOOD"},
+    ],
+    "Survey_B": [
+        {"trace_id": "T004", "receiver": "R3", "QC_flag": "BAD"},
+        {"trace_id": "T005", "receiver": "R2", "QC_flag": "GOOD"},
+    ],
+    "Survey_C": [
+        {"trace_id": "T006", "receiver": "R1", "QC_flag": "GOOD"},
+        {"trace_id": "T007", "receiver": "R3", "QC_flag": "BAD"},
+        {"trace_id": "T008", "receiver": "R3", "QC_flag": "GOOD"},
+        {"trace_id": "T009", "receiver": "R2", "QC_flag": "GOOD"},
+    ]
+}
+
+# ===============================
+# 1. Tampilkan trace_id dengan QC_flag = BAD
+# ===============================
+trace_bad = []
+
+for survey_name, daftar_trace in survey.items():
+    for trace in daftar_trace:
+        if trace["QC_flag"] == "BAD":
+            trace_bad.append(trace["trace_id"])
+
+print("Trace BAD:", trace_bad)
+
+# ===============================
+# 2. Hitung jumlah total trace
+# ===============================
+total_trace = sum(len(daftar_trace) for daftar_trace in survey.values())
+print("Total trace:", total_trace)
+
+# ===============================
+# 3. Survey dengan jumlah trace terbanyak
+# ===============================
+survey_terbanyak = max(survey, key=lambda s: len(survey[s]))
+
+print(
+    "Survey dengan trace terbanyak:",
+    survey_terbanyak,
+    "(",
+    len(survey[survey_terbanyak]),
+    "trace )"
+)
+
+# ===============================
+# 4. Set receiver unik
+# ===============================
+receiver_unik = set()
+
+for daftar_trace in survey.values():
+    for trace in daftar_trace:
+        receiver_unik.add(trace["receiver"])
+
+print("Receiver unik:", receiver_unik)
+
+# ===============================
+# 5. Update receiver count (FIX)
+# ===============================
+jumlah_receiver = {}
+
+for daftar_trace in survey.values():
+    for trace in daftar_trace:
+        receiver = trace["receiver"]
+        if receiver not in jumlah_receiver:
+            jumlah_receiver[receiver] = 1
+        else:
+            jumlah_receiver[receiver] += 1
+
+print("Jumlah trace per receiver:", jumlah_receiver)

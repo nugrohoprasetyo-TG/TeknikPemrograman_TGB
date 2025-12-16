@@ -1,0 +1,33 @@
+# Base Sensor class
+class Sensor:
+    def __init__(self, id_sensor, lokasi, jenis):
+        self.id_sensor = id_sensor
+        self.lokasi = lokasi
+        self.jenis = jenis
+
+    def info(self):
+        """Return sensor information as a string."""
+        return f"Sensor ID: {self.id_sensor}, Lokasi: {self.lokasi}, Jenis: {self.jenis}"
+
+
+# Derived SensorSeismik class
+class SensorSeismik(Sensor):
+    def __init__(self, id_sensor, lokasi, jenis, frekuensi_sampling):
+        super().__init__(id_sensor, lokasi, jenis)
+        self.frekuensi_sampling = frekuensi_sampling  # in Hz
+
+    def jumlah_sampel(self, durasi_detik):
+        """
+        Calculate number of amplitude samples based on duration (seconds)
+        and sampling frequency.
+        """
+        return self.frekuensi_sampling * durasi_detik
+
+
+# Example usage
+sensor1 = Sensor("S001", "Lampung", "Accelerometer")
+print(sensor1.info())
+
+seismik1 = SensorSeismik("SS001", "Jakarta", "Seismometer", 100)  # 100 Hz
+print(seismik1.info())
+print("Jumlah sampel dalam 10 detik:", seismik1.jumlah_sampel(10))
