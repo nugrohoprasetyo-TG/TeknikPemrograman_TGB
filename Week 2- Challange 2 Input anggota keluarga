@@ -1,0 +1,11 @@
+#Verol Difa Vrayatha_124120099#user menginputkan jumlah anggota keluarga
+jumlah = int(input("jumlah anggota keluarga:"))
+total = 0
+ #kalkulasi rata-rata usia
+for i in range(jumlah):
+        usia = int(input(f"anggota ke-{i+1}:"))
+        total += usia
+        rata_rata = total / jumlah
+
+#Hasil rata-rata usia
+print("rata-rata usia anggota keluarga adalah:", rata_rata)
