@@ -1,0 +1,62 @@
+#TWT
+
+import csv
+
+input_file = "data.txt"
+output_file = "data_normalized.csv"
+
+data = []
+
+# -------------------------------
+# Load data dari ASCII (CSV)
+# -------------------------------
+with open(input_file, "r") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        try:
+            shot = int(row["shot"])
+            receiver = int(row["receiver"])
+            twt = float(row["twt"])
+            data.append({"shot": shot, "receiver": receiver, "twt": twt})
+        except ValueError:
+            print("Error: Format angka tidak valid pada baris:", row)
+
+# -------------------------------
+# Normalisasi TWT
+# rumus: (twt - twt_min) / (600 - twt_min)
+# dengan error handling
+# -------------------------------
+try:
+    twt_min = min(d["twt"] for d in data)
+
+    denominator = 600 - twt_min
+    if denominator == 0:
+        raise ZeroDivisionError("Error: nilai denominator 0 (600 == twt_min). Normalisasi gagal.")
+
+    for d in data:
+        d["twt_norm"] = (d["twt"] - twt_min) / denominator
+
+except ValueError:
+    print("Error: Data kosong atau twt tidak valid.")
+except ZeroDivisionError as e:
+    print(e)
+    # Jika terjadi error, set nilai normalisasi menjadi None
+    for d in data:
+        d["twt_norm"] = None
+
+# -------------------------------
+# Simpan ke file baru (CSV)
+# -------------------------------
+with open(output_file, "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["shot", "receiver", "twt", "twt_norm"])  # header
+
+    for d in data:
+        writer.writerow([
+            d["shot"],
+            d["receiver"],
+            d["twt"],
+            d["twt_norm"]
+        ])
+
+print("Proses selesai! File tersimpan sebagai:", output_file)
