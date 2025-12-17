@@ -1,0 +1,11 @@
+print("--- BIODATA SAYA ---")
+print("")
+
+print("Nama : Inggrid Irwanti")
+print("NIM : 124120086") 
+print("Jurusan : Teknik Geofisika")
+print("Angkatan : 2024")
+
+print("Hobi : Membaca novel")
+
+print("\n--- Terima Kasih ---")
