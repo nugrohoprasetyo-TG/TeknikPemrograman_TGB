@@ -1,0 +1,53 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# ===============================
+# LOAD DATA
+# ===============================
+df = pd.read_csv("test_magnetic.csv")
+
+# pastikan urutan y dari besar → kecil
+df = df.sort_values(by=["y", "x"], ascending=[False, True])
+
+# ubah jadi grid 2D
+obs = df.pivot(index="y", columns="x", values="t_obs").values
+
+# ===============================
+# SIDEBAR
+# ===============================
+st.sidebar.header("Kontrol Visualisasi")
+
+cmap_list = ["viridis", "plasma", "inferno", "magma", "jet", "turbo", "seismic", "coolwarm"]
+cmap_selected = st.sidebar.selectbox("Colormap", cmap_list)
+
+vmin = st.sidebar.slider("vmin", float(np.min(obs)), float(np.max(obs)), float(np.min(obs)))
+vmax = st.sidebar.slider("vmax", float(np.min(obs)), float(np.max(obs)), float(np.max(obs)))
+
+scale_mode = st.sidebar.radio("Scale", ["Auto", "Manual"])
+
+# ===============================
+# PLOT FUNCTION
+# ===============================
+def plot_map(data, title):
+    fig, ax = plt.subplots(figsize=(5, 4))
+
+    if scale_mode == "Auto":
+        im = ax.imshow(data, cmap=cmap_selected)
+    else:
+        im = ax.imshow(data, cmap=cmap_selected, vmin=vmin, vmax=vmax)
+
+    ax.set_title(title)
+    ax.set_xlabel("X grid")
+    ax.set_ylabel("Y grid")
+    plt.colorbar(im, ax=ax)
+
+    return fig
+
+# ===============================
+# TAMPILKAN
+# ===============================
+st.title("Peta Anomali Magnetik Observasi")
+fig_obs = plot_map(obs, "Anomali Observasi (t_obs)")
+st.pyplot(fig_obs)
