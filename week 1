@@ -1,0 +1,6 @@
+jari_jari = float(input("Masukkan jari-jari lingkaran: "))
+pi = 3.14
+
+luas = pi * jari_jari * jari_jari
+
+print("Luas lingkaran adalah:", luas)
