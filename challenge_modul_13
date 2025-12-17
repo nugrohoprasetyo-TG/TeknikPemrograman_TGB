@@ -1,0 +1,138 @@
+CHALLENGE MODUL 13
+import streamlit as st
+import segyio
+import numpy as np
+import pandas as pd
+import plotly.express as px
+
+# ------------------------------
+# FUNGSI BACA HEADER
+# ------------------------------
+def read_segy_data_header(segy_path, segy_byte_locs, length=4, signed=True):
+    segy_byte_locs = list(segy_byte_locs)
+    with segyio.open(segy_path, "r", ignore_geometry=True) as f:
+        n_traces = f.tracecount
+        n_locs = len(segy_byte_locs)
+
+        values = np.zeros((n_traces, n_locs), dtype=np.int32)
+        data_segy = []
+        for i in range(n_traces):
+            h = f.header[i]
+            buf = h.buf
+            for j, byte_pos in enumerate(segy_byte_locs):
+                start = byte_pos - 1
+                raw = bytes(buf[start:start+length])
+                values[i, j] = int.from_bytes(raw, byteorder="big", signed=signed)
+            data_segy.append(f.trace[i])
+
+    col_names = [f"byte_{loc}" for loc in segy_byte_locs]
+    header_df = pd.DataFrame(values, columns=col_names)
+    return np.array(data_segy).T, header_df
+
+if "df_header" not in st.session_state:
+    st.session_state.df_header = None
+if "data_segy" not in st.session_state:
+    st.session_state.data_segy = None
+
+# ------------------------------
+# STREAMLIT APP
+# ------------------------------
+st.title("📌 Streamlit Viewer — Post-Stack SEG-Y")
+st.write("Aplikasi sederhana untuk loading SEG-Y post-stack, membaca header CDP/CDP-X/CDP-Y, dan memplot data.")
+
+# Upload SEG-Y
+uploaded = st.file_uploader("Upload File SEG-Y", type=["sgy", "segy"])
+if uploaded is not None:
+    st.success("File berhasil di-upload!")
+    tmp_path = "temp_uploaded.sgy"
+    with open(tmp_path, "wb") as f:
+        f.write(uploaded.read())
+
+    # Input byte location
+    st.subheader("Masukkan Lokasi Byte (1-based index)")
+    col1, col2, col3 = st.columns(3)
+    byte_cdp   = col1.number_input("Byte CDP (awal)", value=9)
+    byte_cdp_x = col2.number_input("Byte CDP-X (awal)", value=73)
+    byte_cdp_y = col3.number_input("Byte CDP-Y (awal)", value=77)
+
+    btn_load = st.button("Load SEG-Y ke Memory")
+    if btn_load:
+        byte_locs = [byte_cdp, byte_cdp_x, byte_cdp_y]
+        vals, header_df = read_segy_data_header(tmp_path, byte_locs)
+        st.session_state.df_header = header_df
+        st.session_state.data_segy = vals
+        st.info("Loading Sukses!")
+
+if st.session_state.data_segy is not None:
+    with st.expander("Header View"):
+        st.write(st.session_state.df_header)
+
+    with st.expander("Segy Data & Plotting"):
+        st.write(f"Index Min CDP : {0}, Index Max CDP : {st.session_state.data_segy.shape[1]}")
+
+        # ------------------------------
+        # Sidebar Controls
+        # ------------------------------
+        st.sidebar.header("Kontrol Plot")
+
+        # Colormap dropdown
+        cmap_options = {
+            "Seismic": [[0.0, "blue"], [0.5, "white"], [1.0, "red"]],
+            "Viridis": "viridis",
+            "Cividis": "cividis",
+            "Plasma": "plasma",
+            "Inferno": "inferno",
+            "Magma": "magma",
+            "coolwarm": "rdbu"
+        }
+        selected_cmap = st.sidebar.selectbox("Pilih Colormap", list(cmap_options.keys()))
+
+        # Auto/Manual Scale
+        scale_mode = st.sidebar.radio("Mode Skala Warna", ["Auto", "Manual"])
+        if scale_mode == "Manual":
+            vmin = st.sidebar.slider("vmin", float(np.min(st.session_state.data_segy)), float(np.max(st.session_state.data_segy)), float(np.min(st.session_state.data_segy)))
+            vmax = st.sidebar.slider("vmax", float(np.min(st.session_state.data_segy)), float(np.max(st.session_state.data_segy)), float(np.max(st.session_state.data_segy)))
+        else:
+            vmin = vmax = None
+
+        # Additional options
+        reverse_y = st.sidebar.checkbox("Membalik Sumbu Waktu", value=True)
+        trace_min = st.sidebar.number_input("Trace Min", 0, st.session_state.data_segy.shape[1]-1, 0)
+        trace_max = st.sidebar.number_input("Trace Max", 0, st.session_state.data_segy.shape[1], min(500, st.session_state.data_segy.shape[1]))
+        save_plot = st.sidebar.checkbox("Simpan Plot sebagai Gambar")
+
+        # ------------------------------
+        # Subset Data
+        # ------------------------------
+        data = st.session_state.data_segy[:, trace_min:trace_max]
+
+        # ------------------------------
+        # Plot Button
+        # ------------------------------
+        if st.button("Plot"):
+            fig = px.imshow(
+                data,
+                color_continuous_scale=cmap_options[selected_cmap],
+                aspect="auto",
+                origin="lower"
+            )
+
+            if reverse_y:
+                fig.update_yaxes(autorange="reversed")
+
+            fig.update_layout(
+                height=600,
+                xaxis_title="Trace",
+                yaxis_title="Time Sample"
+            )
+
+            # Apply vmin/vmax if Manual
+            if scale_mode == "Manual":
+                fig.update_traces(zmin=vmin, zmax=vmax)
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            # Save as PNG
+            if save_plot:
+                fig.write_image("segy_plot.png")
+                st.success("Plot berhasil disimpan sebagai segy_plot.png")
