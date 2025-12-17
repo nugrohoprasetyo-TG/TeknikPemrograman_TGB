@@ -1,0 +1,215 @@
+CHALLENGE MODUL 14
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.ndimage import uniform_filter
+from scipy.interpolate import griddata, NearestNDInterpolator
+
+# --- KONFIGURASI HALAMAN ---
+st.set_page_config(page_title="Analisis Magnetik 2D", layout="wide")
+
+st.title("🗺️ Pengolahan Data Magnetik 2D")
+st.markdown("""
+Aplikasi ini melakukan pemisahan anomali **Regional** dan **Residual**.
+Mendukung proses **Gridding** dari data acak (scatter) menjadi data grid teratur.
+""")
+
+# --- FUNGSI GENERATOR DATA (Dummy) ---
+def get_dummy_dataframe(grid_size=50):
+    x = np.linspace(0, 1000, grid_size)
+    y = np.linspace(0, 1000, grid_size)
+    X, Y = np.meshgrid(x, y)
+
+    regional = 0.05 * X + 0.02 * Y + 45000
+    r = np.sqrt((X - 500)**2 + (Y - 500)**2 + 50**2)
+    residual = 5000 * (50 / r)**3
+    noise = np.random.normal(0, 1, (grid_size, grid_size))
+    total = regional + residual + noise
+
+    df = pd.DataFrame({
+        'x': X.flatten(),
+        'y': Y.flatten(),
+        't_obs': total.flatten()
+    })
+    return df.sample(frac=0.8).reset_index(drop=True)
+
+# --- FUNGSI POLYFIT 2D ---
+def polyfit2d(x, y, z, order=1):
+    x = x.flatten()
+    y = y.flatten()
+    z = z.flatten()
+    mask = ~np.isnan(z)
+    x, y, z = x[mask], y[mask], z[mask]
+
+    if order == 1:
+        A = np.c_[np.ones(x.shape), x, y]
+    elif order == 2:
+        A = np.c_[np.ones(x.shape), x, y, x**2, x*y, y**2]
+
+    C, _, _, _ = np.linalg.lstsq(A, z, rcond=None)
+
+    if order == 1:
+        return lambda xi, yi: C[0] + C[1]*xi + C[2]*yi
+    elif order == 2:
+        return lambda xi, yi: C[0] + C[1]*xi + C[2]*yi + C[3]*xi**2 + C[4]*xi*yi + C[5]*yi**2
+
+# --- INPUT DATA ---
+st.sidebar.subheader("Input Data")
+uploaded_file = st.sidebar.file_uploader("Unggah file CSV (Kolom: x, y, t_obs)", type="csv")
+
+if uploaded_file is not None:
+    try:
+        df_input = pd.read_csv(uploaded_file)
+        if not all(col in df_input.columns for col in ['x', 'y', 't_obs']):
+            st.error("CSV harus memiliki kolom: x, y, t_obs")
+            st.stop()
+    except Exception as e:
+        st.error(f"Gagal membaca file CSV: {e}")
+        st.stop()
+else:
+    st.sidebar.info("Tidak ada file diunggah. Menggunakan data dummy.")
+    df_input = get_dummy_dataframe()
+
+# --- SIDEBAR GRIDDING ---
+st.sidebar.markdown("---")
+st.sidebar.subheader("Parameter Gridding")
+
+x_min, x_max = df_input['x'].min(), df_input['x'].max()
+y_min, y_max = df_input['y'].min(), df_input['y'].max()
+st.sidebar.text(f"Range X: {x_min:.1f} - {x_max:.1f} m")
+st.sidebar.text(f"Range Y: {y_min:.1f} - {y_max:.1f} m")
+
+default_cell = (x_max - x_min) / 50
+cell_size = st.sidebar.number_input(
+    "Ukuran Sel (Meter)",
+    min_value=1.0,
+    max_value=(x_max - x_min)/5,
+    value=float(default_cell),
+    step=5.0,
+    help="Semakin kecil nilai ini, resolusi peta semakin tinggi tapi komputasi lebih berat."
+)
+
+interp_method = st.sidebar.selectbox(
+    "Metode Interpolasi",
+    ["linear", "cubic", "nearest"],
+    index=0,
+    help="'linear' standard, 'cubic' lebih halus, 'nearest' kotak-kotak (pixelated)."
+)
+
+# --- GRIDDATA ---
+xi = np.arange(x_min, x_max + cell_size, cell_size)
+yi = np.arange(y_min, y_max + cell_size, cell_size)
+X, Y = np.meshgrid(xi, yi)
+
+with st.spinner("Melakukan interpolasi data..."):
+    T_obs = griddata(
+        points=(df_input['x'], df_input['y']),
+        values=df_input['t_obs'],
+        xi=(X, Y),
+        method=interp_method
+    )
+
+# --- SIDEBAR VISUALISASI ---
+st.sidebar.markdown("---")
+st.sidebar.subheader("Pengaturan Visualisasi")
+
+cmap_list = ['jet', 'viridis', 'plasma', 'inferno', 'magma', 'cividis', 'seismic']
+selected_cmap = st.sidebar.selectbox("Pilih Colormap", cmap_list, index=cmap_list.index('jet'))
+
+scale_mode = st.sidebar.radio("Skala Warna", ["Auto", "Manual"])
+if scale_mode == "Manual":
+    vmin = st.sidebar.slider("Nilai Minimum (vmin)", float(np.nanmin(T_obs)), float(np.nanmax(T_obs)), float(np.nanmin(T_obs)))
+    vmax = st.sidebar.slider("Nilai Maksimum (vmax)", float(np.nanmin(T_obs)), float(np.nanmax(T_obs)), float(np.nanmax(T_obs)))
+else:
+    vmin, vmax = None, None
+
+save_plot = st.sidebar.checkbox("Simpan gambar hasil plot")
+
+# --- VISUALISASI DATA ---
+st.subheader("1. Visualisasi Data")
+tab1, tab2 = st.tabs(["Peta Kontur (Gridded)", "Sebaran Titik Data (Scatter)"])
+
+with tab1:
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    c1 = ax1.contourf(X, Y, T_obs, levels=25, cmap=selected_cmap, vmin=vmin, vmax=vmax)
+    ax1.scatter(df_input['x'], df_input['y'], c='k', s=5, alpha=0.2, label='Observed Point')
+    ax1.set_title(f"Total Magnetic Intensity (Grid Spacing: {cell_size:.1f} m)")
+    ax1.set_xlabel("Easting (X)")
+    ax1.set_ylabel("Northing (Y)")
+    ax1.legend(loc='upper right')
+    ax1.set_aspect('equal')
+    fig1.colorbar(c1, ax=ax1, label='nT')
+    st.pyplot(fig1)
+    if save_plot:
+        fig1.savefig("total_plot.png", dpi=300)
+
+with tab2:
+    fig_scatter, ax_s = plt.subplots(figsize=(8, 6))
+    sc = ax_s.scatter(df_input['x'], df_input['y'], c=df_input['t_obs'], cmap=selected_cmap, s=10)
+    ax_s.set_title("Posisi Titik Pengukuran Asli")
+    fig_scatter.colorbar(sc, ax=ax_s, label='nT')
+    st.pyplot(fig_scatter)
+
+st.divider()
+
+# --- PEMISAHAN REGIONAL & RESIDUAL ---
+st.subheader("2. Pemisahan Regional-Residual")
+if T_obs is None:
+    st.stop()
+
+# Isi NaN dengan nearest-neighbor agar filter/regresi tidak gagal
+mask_nan = np.isnan(T_obs)
+if np.any(mask_nan):
+    mask_valid = ~mask_nan
+    xx_valid, yy_valid = X[mask_valid], Y[mask_valid]
+    zz_valid = T_obs[mask_valid]
+    interp_nn = NearestNDInterpolator(list(zip(xx_valid, yy_valid)), zz_valid)
+    T_filled = interp_nn(X, Y)
+else:
+    T_filled = T_obs
+
+method = st.selectbox("Metode Pemisahan:", ["2D Moving Average", "Trend Surface Analysis"])
+Calculated_Regional = np.zeros_like(T_obs)
+
+if method == "2D Moving Average":
+    window_pts = st.slider("Lebar Window (Grid Points)", 3, 200, 9, step=2)
+    st.caption(f"Lebar fisik window ≈ {window_pts * cell_size:.1f} meter")
+    Calculated_Regional = uniform_filter(T_filled, size=window_pts, mode='nearest')
+
+elif method == "Trend Surface Analysis":
+    poly_order = st.radio("Orde:", [1, 2], horizontal=True)
+    poly_func = polyfit2d(X, Y, T_filled, order=poly_order)
+    Calculated_Regional = poly_func(X, Y)
+
+Calculated_Residual = T_obs - Calculated_Regional
+
+# --- TAMPILAN HASIL ---
+col_reg, col_res = st.columns(2)
+
+with col_reg:
+    st.markdown("#### Regional (Trend)")
+    fig2, ax2 = plt.subplots(figsize=(6, 5))
+    c2 = ax2.contourf(X, Y, Calculated_Regional, levels=20, cmap=selected_cmap, vmin=vmin, vmax=vmax)
+    ax2.set_xlabel("Easting (X)")
+    ax2.set_ylabel("Northing (Y)")
+    fig2.colorbar(c2, ax=ax2, label='nT')
+    st.pyplot(fig2)
+    if save_plot:
+        fig2.savefig("regional_plot.png", dpi=300)
+
+with col_res:
+    st.markdown("#### Residual (Anomali Target)")
+    fig3, ax3 = plt.subplots(figsize=(6, 5))
+    valid_res = Calculated_Residual[~np.isnan(Calculated_Residual)]
+    limit = np.percentile(np.abs(valid_res), 98) if len(valid_res) > 0 else 100
+    # Auto: gunakan range simetris berbasis persentil; Manual: gunakan vmin/vmax dari slider
+    vmin_res = -limit if scale_mode == "Auto" else vmin
+    vmax_res =  limit if scale_mode == "Auto" else vmax
+    c3 = ax3.contourf(X, Y, Calculated_Residual, levels=20, cmap=selected_cmap, vmin=vmin_res, vmax=vmax_res)
+    ax3.set_xlabel("Easting (X)")
+    ax3.set_ylabel("Northing (Y)")
+    fig3.colorbar(c3, ax=ax3, label='nT')
+    st.pyplot(fig3)
+    if save_plot:
+        fig3.savefig("residual_plot.png", dpi=300)
