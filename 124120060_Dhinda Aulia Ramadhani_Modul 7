@@ -1,0 +1,66 @@
+# ANALISIS DATA MIKROGRAVITASI
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+
+# 1. LOAD DATA
+
+df = pd.read_csv("survey_gravitasi.csv")
+print("5 data teratas:")
+print(df.head())
+df = df.dropna(subset=["Anomali_Gravitasi_mGal"])
+
+# 2. SCATTER PLOT TITIK PENGUKURAN
+
+plt.figure(figsize=(8,6))
+plt.scatter(df["X"], df["Y"], c=df["Anomali_Gravitasi_mGal"], s=40)
+plt.colorbar(label="Anomali Gravitasi (mGal)")
+plt.title("Peta Titik Pengukuran Gravitasi")
+plt.xlabel("X (meter)")
+plt.ylabel("Y (meter)")
+plt.grid(True)
+plt.show()
+
+
+# 3. INTERPOLASI DATA TITIK KE GRID (Untuk Kontur)
+
+# Siapkan grid halus
+grid_x, grid_y = np.mgrid[
+    df["X"].min():df["X"].max():200j,
+    df["Y"].min():df["Y"].max():200j
+]
+
+# Interpolasi (linear, bisa diganti 'cubic' jika mau lebih halus)
+grid_z = griddata(
+    (df["X"], df["Y"]),
+    df["Anomali_Gravitasi_mGal"],
+    (grid_x, grid_y),
+    method='cubic'
+)
+
+# 4. PETA KONTUR ANOMALI GRAVITASI
+
+plt.figure(figsize=(9,7))
+contour = plt.contourf(grid_x, grid_y, grid_z, levels=20)
+plt.colorbar(contour, label="Anomali Gravitasi (mGal)")
+plt.title("Kontur Anomali Gravitasi")
+plt.xlabel("X (meter)")
+plt.ylabel("Y (meter)")
+plt.grid(True)
+plt.show()
+
+
+# 5. PETA KOMBINASI SCATTER + KONTUR
+
+plt.figure(figsize=(9,7))
+plt.contourf(grid_x, grid_y, grid_z, levels=20, alpha=0.8)
+plt.scatter(df["X"], df["Y"], c=df["Anomali_Gravitasi_mGal"],
+            edgecolors="black", s=50)
+plt.title("Peta Anomali Gravitasi (Kontur + Titik Pengukuran)")
+plt.xlabel("X (meter)")
+plt.ylabel("Y (meter)")
+plt.colorbar(label="Anomali Gravitasi (mGal)")
+plt.grid(True)
+plt.show()
