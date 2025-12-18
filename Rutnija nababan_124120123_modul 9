@@ -1,0 +1,17 @@
+import pandas as pd, matplotlib.pyplot as plt, numpy as np
+
+d = pd.DataFrame({
+    'X':[0,0,50,50,100,100],
+    'Y':[0,50,0,50,0,50],
+    'F':[43210,43280,43100,43420,43050,43500]
+})
+
+p = d.pivot('Y','X','F')
+x,y = np.meshgrid(p.columns,p.index)
+
+plt.contourf(x,y,p.values,cmap='plasma')
+plt.colorbar(label='nT')
+plt.scatter(d['X'],d['Y'],c='w')
+plt.xlabel('X(m)');plt.ylabel('Y(m)')
+plt.title('Anomali Magnetik')
+plt.show()
