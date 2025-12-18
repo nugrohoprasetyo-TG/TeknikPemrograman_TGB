@@ -1,0 +1,13 @@
+from abc import ABC, abstractmethod
+
+class Survey(ABC):
+    def __init__(self, nama, lokasi): self.nama, self.lokasi = nama, lokasi
+    @abstractmethod
+    def processing(self): pass
+
+class SeismicSurvey(Survey):
+    def processing(self): return f"Seismic {self.nama}: filtering, stacking, migration"
+class GravitySurvey(Survey):
+    def processing(self): return f"Gravity {self.nama}: upward continuation, bouguer correction"
+class MagnetikSurvey(Survey):
+    def processing(self): return f"Magnetik {self.nama}: anomaly mapping, reduction to pole"
