@@ -1,0 +1,26 @@
+d = data = [
+    {"survey_id": "S001", "trace_id": "T001", "receiver": "R001", "QC_flag": "GOOD"},
+    {"survey_id": "S001", "trace_id": "T002", "receiver": "R002", "QC_flag": "BAD"},
+    {"survey_id": "S001", "trace_id": "T003", "receiver": "R001", "QC_flag": "GOOD"},
+    {"survey_id": "S002", "trace_id": "T004", "receiver": "R003", "QC_flag": "BAD"},
+    {"survey_id": "S002", "trace_id": "T005", "receiver": "R004", "QC_flag": "BAD"},
+    {"survey_id": "S002", "trace_id": "T006", "receiver": "R005", "QC_flag": "GOOD"},
+    {"survey_id": "S002", "trace_id": "T007", "receiver": "R003", "QC_flag": "GOOD"},
+    {"survey_id": "S003", "trace_id": "T008", "receiver": "R006", "QC_flag": "GOOD"},
+    {"survey_id": "S003", "trace_id": "T009", "receiver": "R006", "QC_flag": "BAD"},
+    {"survey_id": "S003", "trace_id": "T010", "receiver": "R007", "QC_flag": "GOOD"},
+    {"survey_id": "S003", "trace_id": "T011", "receiver": "R008", "QC_flag": "GOOD"},
+]
+
+print(f"1. BAD: {[t['trace_id'] for t in d if t['QC_flag']=='BAD']}")
+print(f"2. Total: {len(d)}")
+
+s = {}
+r = {}
+for t in d:
+    s[t['survey_id']] = s.get(t['survey_id'], 0) + 1
+    r[t['receiver']] = r.get(t['receiver'], 0) + 1
+
+print(f"3. Survey terbanyak: {max(s, key=s.get)}")
+print(f"4. Unik: {set(r.keys())}")
+print(f"5. Count: {r}")
