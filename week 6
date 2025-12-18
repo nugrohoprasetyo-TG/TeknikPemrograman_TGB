@@ -1,0 +1,45 @@
+import csv
+
+# =====================================
+# DATA SEISMIK (langsung dalam program)
+# =====================================
+data = [
+    {"shot": 0, "receiver": 100, "twt": 200},
+    {"shot": 0, "receiver": 200, "twt": 350},
+    {"shot": 0, "receiver": 300, "twt": 480},
+    {"shot": 0, "receiver": 400, "twt": 600},
+]
+
+# =====================================
+# NORMALISASI TWT
+# rumus: (twt - twt_min) / (600 - twt_min)
+# =====================================
+try:
+    twt_values = [d["twt"] for d in data]
+    twt_min = min(twt_values)
+    denominator = 600 - twt_min
+
+    if denominator == 0:
+        raise ZeroDivisionError("Pembagi normalisasi bernilai nol")
+
+    for d in data:
+        d["twt_normalized"] = (d["twt"] - twt_min) / denominator
+
+except Exception as e:
+    print("Terjadi kesalahan normalisasi:", e)
+    exit()
+
+# =====================================
+# SIMPAN KE FILE ASCII (CSV)
+# =====================================
+output_file = "data_seismik_normalized.csv"
+
+with open(output_file, "w", newline="") as file:
+    fieldnames = ["shot", "receiver", "twt", "twt_normalized"]
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+    writer.writeheader()
+    writer.writerows(data)
+
+print("Program selesai.")
+print(f"File hasil disimpan sebagai: {output_file}")
