@@ -1,0 +1,31 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Setup
+st.set_page_config(page_title="Dashboard Gravitasi", layout="wide")
+st.title("📊 Analisis Anomali Gravitasi")
+
+# Data
+data = pd.DataFrame({
+    'X': range(10, 210, 10),
+    'Y': [50,51,48,52,50,49,53,51,49,50,55,48,52,50,49,53,51,49,50,52],
+    'Anomali': [1.2,1.5,1.8,3.6,3.0,2.8,2.1,1.5,1.1,0.8,1.3,1.9,2.7,3.8,4.0,3.8,3.1,2.8,1.8,1.2]
+})
+
+st.dataframe(data)
+
+# Slider
+x_min, x_max = st.slider("Rentang X", 10, 200, (10, 200))
+filtered = data[(data['X'] >= x_min) & (data['X'] <= x_max)]
+
+# Plot
+fig, ax = plt.subplots()
+scatter = ax.scatter(filtered['X'], filtered['Y'], c=filtered['Anomali'], cmap='viridis', s=80)
+plt.colorbar(scatter, label='Anomali')
+ax.set_xlabel('X'); ax.set_ylabel('Y'); ax.grid(True)
+st.pyplot(fig)
+
+# Analisis
+st.markdown("***")
+st.text_area("Analisis: Bagaimana slider membantu analisis?")
