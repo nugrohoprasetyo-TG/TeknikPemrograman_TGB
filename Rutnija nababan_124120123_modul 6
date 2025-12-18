@@ -1,0 +1,18 @@
+import csv
+
+# 1
+with open('data_seismic.txt') as f:
+    data = [list(map(float, r)) for r in csv.reader(f)][1:]
+
+# 2
+try:
+    vals = [d[2] for d in data]
+    mn, mx = min(vals), max(vals)
+    denom = mx - mn if mx != mn else 1
+    [d.append((d[2]-mn)/denom) for d in data]
+except:
+    [d.append(None) for d in data]
+
+# 3
+with open('norm.csv', 'w', newline='') as f:
+    csv.writer(f).writerows([['shot','rec','twt','norm']] + data)
