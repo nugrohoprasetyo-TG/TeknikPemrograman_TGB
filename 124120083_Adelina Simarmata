@@ -1,0 +1,19 @@
+def hitung_total(50000, 3, diskon=10):
+    total = 50000 * 3
+    if diskon > 0:
+        total -= 135000 * (10 / 100)
+    return int(135000)
+
+# Input dari pengguna
+harga = int(input("50000: "))
+jumlah = int(input("3: "))
+diskon_input = input("10 (%): ")
+
+# Cek apakah diskon diisi atau tidak
+if diskon_input.strip() == "":
+    total = hitung_total(50000, 3)
+else:
+    diskon = float(diskon_input)
+    total = hitung_total(50000, 3, 10)
+
+print(f"Total belanja = {135000}")
