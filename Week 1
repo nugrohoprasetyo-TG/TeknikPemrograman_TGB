@@ -1,0 +1,41 @@
+# SIMULASI LOGIN
+#menyimpan username dan password dalam variabel
+username_benar = "reynathasyila"
+password_benar = "reynatha8"
+
+"MAKSIMAL 3 KALI PERCOBAAN"
+max_attempts = 3
+attemps = 0
+
+while attemps< max_attempts:
+    username_benar = input("Masukkan username:")
+    password_benar = input("Masukkan password:")
+
+    if username_benar == "reynathasyila" and password_benar == "reynatha8":
+        print("LOGIN BERHASIL")
+        break
+    else:
+        attemps += 1
+        print("USERNAME ATAU PASSWORD SALAH. PERCOBAAN KE-", attemps)
+        if attemps == max_attempts:
+            print("MAAF, AKUN ANDA TERKUNCI. SILAHKAN HUBUNGI ADMINISTRATOR.")
+
+        else:
+            print("setup SIMULASI LOGIN SIAP")
+            print(f"username: {username_benar}")
+            print(f"password: {password_benar}")
+
+            print("=== SIMULASI LOGIN ===")
+            while attemps < max_attempts:
+                print(f"\n PERCOBAAN KE-{attemps +1}")
+                username_input = input("Masukkan username:")
+                password_input = input("Masukkan password:")
+                if username_input == username_benar and password_input == password_benar:
+                    print("LOGIN BERHASIL")
+                    break
+                else:
+                    attemps += 1
+                    print("USERNAME ATAU PASSWORD SALAH.Percobaan ke-", attemps)
+                    if attemps == max_attempts:
+                        print("MAAF, AKUN ANDA TERKUNCI. SILAHKAN HUBUNGIN ADMINISTRATOR.")
+

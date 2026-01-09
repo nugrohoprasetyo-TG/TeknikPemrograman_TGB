@@ -1,0 +1,113 @@
+from abc import ABC, abstractmethod
+
+print("=" * 60)
+print("SISTEM SENSOR & SURVEY GEOFISIKA".center(60))
+print("=" * 60)
+
+
+# =====================================================
+# CHALLENGE 1
+# =====================================================
+
+class Sensor:
+    """
+    Class dasar untuk semua sensor
+    """
+    def __init__(self, id_sensor, lokasi, jenis):
+        self.id_sensor = id_sensor
+        self.lokasi = lokasi
+        self.jenis = jenis
+
+    def info(self):
+        print("\n--- INFORMASI SENSOR ---")
+        print(f"ID Sensor  : {self.id_sensor}")
+        print(f"Lokasi     : {self.lokasi}")
+        print(f"Jenis      : {self.jenis}")
+
+
+class SensorSeismik(Sensor):
+    """
+    Turunan Sensor khusus seismik
+    """
+    def __init__(self, id_sensor, lokasi, jenis, frekuensi_sampling):
+        super().__init__(id_sensor, lokasi, jenis)
+        self.frekuensi_sampling = frekuensi_sampling  # Hz
+
+    def jumlah_sampel(self, durasi_detik):
+        """
+        Menghitung jumlah sampel amplitudo
+        """
+        return self.frekuensi_sampling * durasi_detik
+
+    def info(self):
+        super().info()
+        print(f"Frekuensi Sampling : {self.frekuensi_sampling} Hz")
+
+
+# =====================================================
+# CONTOH PENGGUNAAN CHALLENGE 1
+# =====================================================
+sensor1 = SensorSeismik(
+    id_sensor="SS-01",
+    lokasi="Line A - Shot Point 10",
+    jenis="Seismik Refleksi",
+    frekuensi_sampling=500
+)
+
+sensor1.info()
+durasi = 10  # detik
+print(f"Jumlah sampel ({durasi} detik) :",
+      sensor1.jumlah_sampel(durasi))
+
+
+# =====================================================
+# CHALLENGE 2
+# =====================================================
+
+class Survey(ABC):
+    """
+    Class abstrak untuk survey geofisika
+    """
+    def __init__(self, nama_survey):
+        self.nama_survey = nama_survey
+
+    @abstractmethod
+    def processing(self):
+        pass
+
+
+class SeismicSurvey(Survey):
+    def processing(self):
+        print(f"{self.nama_survey} → Processing: Band-pass filtering & stacking")
+
+
+class GravitySurvey(Survey):
+    def processing(self):
+        print(f"{self.nama_survey} → Processing: Upward continuation & Bouguer correction")
+
+
+class MagnetikSurvey(Survey):
+    def processing(self):
+        print(f"{self.nama_survey} → Processing: RTP & anomaly mapping")
+
+
+# =====================================================
+# CONTOH PENGGUNAAN CHALLENGE 2
+# =====================================================
+
+survey_list = [
+    SeismicSurvey("Survey Seismik Cekungan A"),
+    GravitySurvey("Survey Gravitasi Area Vulkanik"),
+    MagnetikSurvey("Survey Magnetik Regional")
+]
+
+print("\n" + "=" * 60)
+print("PROSES DATA SURVEY".center(60))
+print("=" * 60)
+
+for survey in survey_list:
+    survey.processing()
+
+print("\n" + "=" * 60)
+print("SEMUA PROSES SURVEY SELESAI".center(60))
+print("=" * 60)
