@@ -1,0 +1,31 @@
+class Sensor:
+    def __init__(self, id_sensor, lokasi, jenis):
+        self.id_sensor = id_sensor
+        self.lokasi = lokasi
+        self.jenis = jenis
+
+    def info(self):
+        return f"Sensor ID: {self.id_sensor}, Lokasi: {self.lokasi}, Jenis: {self.jenis}"
+
+
+class SensorSeismik(Sensor):
+    def __init__(self, id_sensor, lokasi, jenis, frekuensi_sampling):
+        super().__init__(id_sensor, lokasi, jenis)
+        self.frekuensi_sampling = frekuensi_sampling  # Hz (sampel per detik)
+
+    def jumlah_sampel(self, durasi_detik):
+        """Hitung jumlah data amplitudo berdasarkan durasi (detik)."""
+        return self.frekuensi_sampling * durasi_detik
+
+    def info(self):
+        return (super().info() +
+                f", Frekuensi Sampling: {self.frekuensi_sampling} Hz")
+
+sensor1 = Sensor("S01", "Jakarta", "Temperatur")
+print(sensor1.info())
+
+sensor_seismik = SensorSeismik("SS01", "Sumatera", "Seismik", 100)
+print(sensor_seismik.info())
+
+durasi = 10  # detik
+print(f"Jumlah sampel dalam {durasi} detik: {sensor_seismik.jumlah_sampel(durasi)}")
